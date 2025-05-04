@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bistro Restaurant - Menu</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add theme color for mobile browsers -->
+    <meta name="theme-color" content="#ff6b6b">
+    <!-- Add apple touch icon -->
+    <link rel="apple-touch-icon" href="images/logo.png">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>Bistro</h1>
+            </div>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav id="main-nav">
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="menu.html" class="active">Menu</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="orders.html" class="hidden" id="orders-link">My Orders</a></li>
+                    <li><a href="admin.html" class="hidden" id="admin">Admin</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <a href="cart.html" id="cart-btn"><i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span></a>
+                <button id="login-btn" class="auth-btn">Login</button>
+                <button id="register-btn" class="auth-btn">Register</button>
+                <div id="user-profile" class="hidden">
+                    <span id="username-display"></span>
+                    <button id="logout-btn">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menu Section -->
+    <section id="menu" class="section active">
+        <div class="container">
+            <h2>Our Menu</h2>
+            <div class="menu-filters">
+                <button class="filter-btn active" data-category="all">All</button>
+                <!-- Categories will be loaded dynamically -->
+            </div>
+            <div class="menu-search">
+                <input type="text" id="menu-search-input" placeholder="Search menu...">
+                <button id="menu-search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="menu-grid" id="menu-items">
+                <!-- Menu items will be loaded dynamically -->
+                <div class="loading">Loading menu items...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3>Bistro Restaurant</h3>
+                    <p>Experience the finest dining with our exquisite menu and exceptional service. We are committed to providing our customers with an unforgettable dining experience.</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-hours">
+                    <h3>Opening Hours</h3>
+                    <ul>
+                        <li><span>Monday - Friday:</span> 11:00 AM - 10:00 PM</li>
+                        <li><span>Saturday - Sunday:</span> 10:00 AM - 11:00 PM</li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Main Street, City, Country</p>
+                    <p><i class="fas fa-phone"></i> +1 234 567 890</p>
+                    <p><i class="fas fa-envelope"></i> info@bistro.com</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Bistro Restaurant. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Register</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">Confirm Password</label>
+                    <input type="password" id="register-confirm-password" name="confirm-password" required>
+                </div>
+                <button type="submit" class="btn-primary">Register</button>
+            </form>
+            <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Your Cart</h2>
+            <div id="cart-items">
+                <!-- Cart items will be loaded dynamically -->
+                <p class="empty-cart">Your cart is empty</p>
+            </div>
+            <div class="cart-total">
+                <p>Total: $<span id="cart-total">0.00</span></p>
+            </div>
+            <div class="cart-actions">
+                <button id="clear-cart-btn" class="btn-secondary">Clear Cart</button>
+                <button id="checkout-btn" class="btn-primary">Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Checkout</h2>
+            <div id="order-items">
+                <!-- Order items will be loaded dynamically -->
+            </div>
+            <div class="order-total">
+                <p>Total: $<span id="order-total">0.00</span></p>
+            </div>
+            <form id="checkout-form">
+                <div class="form-group">
+                    <label for="delivery-address">Delivery Address</label>
+                    <input type="text" id="delivery-address" name="delivery-address" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment-method">Payment Method</label>
+                    <select id="payment-method" name="payment-method" required>
+                        <option value="">Select Payment Method</option>
+                        <option value="CREDIT_CARD">Credit Card</option>
+                        <option value="CASH">Cash on Delivery</option>
+                        <option value="PAYPAL">PayPal</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="special-instructions">Special Instructions</label>
+                    <textarea id="special-instructions" name="special-instructions" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Place Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/cart-test.js"></script>
+    <script>
+        // Initialize menu page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize cart count from server
+            try {
+                console.log("Initializing cart count from server");
+                
+                // Load cart count from server
+                fetch('api/cart-service')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const count = data.items.reduce((total, item) => total + item.quantity, 0);
+                        
+                        const cartCountElement = document.getElementById('cart-count');
+                        if (cartCountElement) {
+                            cartCountElement.textContent = count;
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error loading cart count from server:", error);
+                        
+                        // Set cart count to 0 on error
+                        const cartCountElement = document.getElementById('cart-count');
+                        if (cartCountElement) {
+                            cartCountElement.textContent = "0";
+                        }
+                    });
+            } catch (e) {
+                console.error("Error in cart initialization:", e);
+            }
+            
+            // Load menu items
+            if (typeof loadMenuItems === 'function') {
+                loadMenuItems();
+            }
+            
+            // Set up menu search
+            const menuSearchBtn = document.getElementById('menu-search-btn');
+            const menuSearchInput = document.getElementById('menu-search-input');
+            
+            if (menuSearchBtn && menuSearchInput) {
+                menuSearchBtn.addEventListener('click', function() {
+                    if (typeof searchMenuItems === 'function') {
+                        searchMenuItems(menuSearchInput.value);
+                    }
+                });
+                
+                menuSearchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        if (typeof searchMenuItems === 'function') {
+                            searchMenuItems(menuSearchInput.value);
+                        }
+                    }
+                });
+            }
+            
+            // Check if user is logged in
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            if (user) {
+                // Show orders link
+                const ordersLink = document.getElementById('orders-link');
+                if (ordersLink) {
+                    ordersLink.classList.remove('hidden');
+                }
+                
+                // Show admin link if user is admin or staff
+                if (user.role === 'ADMIN' || user.role === 'STAFF') {
+                    const adminLink = document.getElementById('admin');
+                    if (adminLink) {
+                        adminLink.classList.remove('hidden');
+                    }
+                }
+            }
+            
+            // Cart button
+            const cartBtn = document.getElementById('cart-btn');
+            if (cartBtn) {
+                console.log('Found cart button');
+                cartBtn.addEventListener('click', function() {
+                    console.log('Cart button clicked');
+                    // Get the cart modal
+                    const cartModal = document.getElementById('cart-modal');
+                    if (cartModal) {
+                        console.log('Found cart modal');
+                        // Show the modal
+                        cartModal.style.display = 'block';
+                        
+                        // Load cart items from server
+                        fetch('api/cart-service')
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log('Server response for cart:', data);
+                                // Get cart items container
+                                const cartItemsContainer = document.getElementById('cart-items');
+                                const cartTotal = document.getElementById('cart-total');
+                                
+                                if (cartItemsContainer) {
+                                    if (!data.items || data.items.length === 0) {
+                                        cartItemsContainer.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
+                                        if (cartTotal) cartTotal.textContent = '0.00';
+                                    } else {
+                                        // Update cart display using cart.js or menu.js function if available
+                                        if (typeof updateCartDisplay === 'function') {
+                                            updateCartDisplay(data.items, data.total);
+                                        } else if (typeof updateCartView === 'function') {
+                                            updateCartView(data.items, data.total);
+                                        } else {
+                                            // Fallback in case neither function is available
+                                            let html = '';
+                                            
+                                            data.items.forEach(item => {
+                                                // Handle both server and local storage formats
+                                                const menuItem = item.menuItem || item;
+                                                const name = menuItem.name || item.name;
+                                                const price = menuItem.price || item.price;
+                                                const itemId = item.menuItemId || item.id;
+                                                
+                                                html += `
+                                                    <div class="cart-item" data-id="${itemId}">
+                                                        <div class="cart-item-info">
+                                                            <h4>${name}</h4>
+                                                            <p>$${parseFloat(price).toFixed(2)} x ${item.quantity}</p>
+                                                        </div>
+                                                        <div class="cart-item-actions">
+                                                            <button class="decrease-quantity-btn" data-id="${itemId}">-</button>
+                                                            <span class="item-quantity">${item.quantity}</span>
+                                                            <button class="increase-quantity-btn" data-id="${itemId}">+</button>
+                                                            <button class="remove-item-btn" data-id="${itemId}"><i class="fas fa-trash"></i></button>
+                                                        </div>
+                                                    </div>
+                                                `;
+                                            });
+                                            
+                                            cartItemsContainer.innerHTML = html;
+                                            if (cartTotal) cartTotal.textContent = parseFloat(data.total).toFixed(2);
+                                        }
+                                    }
+                                } else {
+                                    console.error('Cart items container not found');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error loading cart:', error);
+                                // Show empty cart
+                                const cartItemsContainer = document.getElementById('cart-items');
+                                const cartTotal = document.getElementById('cart-total');
+                                
+                                if (cartItemsContainer) {
+                                    cartItemsContainer.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
+                                    if (cartTotal) cartTotal.textContent = '0.00';
+                                }
+                            });
+                    } else {
+                        console.error('Cart modal not found');
+                    }
+                });
+            } else {
+                console.error('Cart button not found');
+            }
+            
+            // Set up close modal buttons
+            const closeModalButtons = document.querySelectorAll('.close-modal');
+            closeModalButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const modals = document.querySelectorAll('.modal');
+                    modals.forEach(modal => {
+                        modal.style.display = 'none';
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

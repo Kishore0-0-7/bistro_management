@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bistro Restaurant - Your Cart</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add theme color for mobile browsers -->
+    <meta name="theme-color" content="#ff6b6b">
+    <!-- Add apple touch icon -->
+    <link rel="apple-touch-icon" href="images/logo.png">
+    <style>
+        /* Additional styles for the cart page */
+        .cart-page {
+            padding: 40px 0;
+        }
+        
+        .cart-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+            min-height: 200px;
+        }
+        
+        .cart-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .cart-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        .cart-list {
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .cart-item-info {
+            flex: 1;
+        }
+        
+        .cart-item-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+        }
+        
+        .cart-item-info p {
+            margin: 0;
+            color: #666;
+        }
+        
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        .item-quantity {
+            margin: 0 10px;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        .decrease-quantity-btn,
+        .increase-quantity-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .remove-item-btn {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            margin-left: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .cart-summary {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .cart-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .cart-actions button {
+            flex: 1;
+            padding: 12px;
+            font-size: 1rem;
+        }
+        
+        .empty-cart-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .empty-cart-message i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .empty-cart-message p {
+            margin: 10px 0;
+        }
+        
+        .continue-shopping {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        /* Fallback cart styles */
+        .cart-fallback {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .cart-fallback h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .cart-fallback ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            text-align: left;
+            max-width: 500px;
+            margin: 0 auto 20px auto;
+        }
+        
+        .cart-fallback ul li {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 1.1rem;
+        }
+        
+        .cart-fallback p {
+            margin: 15px 0;
+            font-size: 1.2rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .cart-item-actions {
+                margin-top: 15px;
+                align-self: flex-end;
+            }
+            
+            .cart-actions {
+                flex-direction: column;
+            }
+        }
+        
+        /* Animation styles for cart operations */
+        .item-increasing {
+            animation: highlight-green 1s ease;
+        }
+        
+        .item-decreasing {
+            animation: highlight-yellow 1s ease;
+        }
+        
+        .item-removing {
+            animation: fade-out 1s ease;
+        }
+        
+        @keyframes highlight-green {
+            0% { background-color: transparent; }
+            50% { background-color: rgba(107, 255, 132, 0.3); }
+            100% { background-color: transparent; }
+        }
+        
+        @keyframes highlight-yellow {
+            0% { background-color: transparent; }
+            50% { background-color: rgba(255, 209, 102, 0.3); }
+            100% { background-color: transparent; }
+        }
+        
+        @keyframes fade-out {
+            0% { opacity: 1; background-color: transparent; }
+            50% { opacity: 1; background-color: rgba(255, 107, 107, 0.3); }
+            100% { opacity: 0.8; background-color: transparent; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>Bistro</h1>
+            </div>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav id="main-nav">
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="menu.html">Menu</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="orders.html" class="hidden" id="orders-link">My Orders</a></li>
+                    <li><a href="admin.html" class="hidden" id="admin">Admin</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <a href="cart.html" id="cart-btn" class="active"><i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span></a>
+                <button id="login-btn" class="auth-btn">Login</button>
+                <button id="register-btn" class="auth-btn">Register</button>
+                <div id="user-profile" class="hidden">
+                    <span id="username-display"></span>
+                    <button id="logout-btn">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Cart Section -->
+    <section class="cart-page section active">
+        <div class="container">
+            <h2>Your Shopping Cart</h2>
+            
+            <div id="cart-container" class="cart-container">
+                <!-- Cart will be loaded here -->
+                <div class="loading">Loading your cart...</div>
+            </div>
+            
+            <div class="continue-shopping">
+                <a href="menu.html" class="btn-primary">Continue Shopping</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3>Bistro Restaurant</h3>
+                    <p>Experience the finest dining with our exquisite menu and exceptional service. We are committed to providing our customers with an unforgettable dining experience.</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-hours">
+                    <h3>Opening Hours</h3>
+                    <ul>
+                        <li><span>Monday - Friday:</span> 11:00 AM - 10:00 PM</li>
+                        <li><span>Saturday - Sunday:</span> 10:00 AM - 11:00 PM</li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Main Street, City, Country</p>
+                    <p><i class="fas fa-phone"></i> +1 234 567 890</p>
+                    <p><i class="fas fa-envelope"></i> info@bistro.com</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Bistro Restaurant. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Register</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">Confirm Password</label>
+                    <input type="password" id="register-confirm-password" name="confirm-password" required>
+                </div>
+                <button type="submit" class="btn-primary">Register</button>
+            </form>
+            <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Checkout</h2>
+            <div id="order-items">
+                <!-- Order items will be loaded dynamically -->
+            </div>
+            <div class="order-total">
+                <p>Total: $<span id="order-total">0.00</span></p>
+            </div>
+            <form id="checkout-form">
+                <div class="form-group">
+                    <label for="delivery-address">Delivery Address</label>
+                    <input type="text" id="delivery-address" name="delivery-address" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment-method">Payment Method</label>
+                    <select id="payment-method" name="payment-method" required>
+                        <option value="">Select Payment Method</option>
+                        <option value="CREDIT_CARD">Credit Card</option>
+                        <option value="CASH">Cash on Delivery</option>
+                        <option value="PAYPAL">PayPal</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="special-instructions">Special Instructions</label>
+                    <textarea id="special-instructions" name="special-instructions" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Place Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/cart-page.js"></script>
+    
+    <!-- Direct cart access script as last resort -->
+    <script>
+        // This script will run after a short delay to ensure it doesn't interfere with the main script
+        setTimeout(function() {
+            const cartContainer = document.getElementById('cart-container');
+            
+            // If the cart container is still showing loading or is empty, attempt direct access
+            if (cartContainer && (cartContainer.innerHTML.includes('Loading') || cartContainer.innerHTML.trim() === '')) {
+                console.log('Attempting direct cart access as fallback');
+                
+                fetch('api/cart-service')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Direct cart access data:', data);
+                        
+                        if (data.items && data.items.length > 0) {
+                            showCartDisplay(data);
+                        } else {
+                            // Show empty cart message
+                            cartContainer.innerHTML = `
+                                <div style="text-align: center; padding: 40px 20px;">
+                                    <i class="fas fa-shopping-cart" style="font-size: 4rem; color: #ddd; margin-bottom: 20px;"></i>
+                                    <h3>Your Cart is Empty</h3>
+                                    <p>Looks like you haven't added any items to your cart yet.</p>
+                                    <p>Check out our menu to find something delicious!</p>
+                                    <div style="margin-top: 20px;">
+                                        <a href="menu.html" style="display: inline-block; padding: 10px 20px; background-color: #ff6b6b; color: white; text-decoration: none; border-radius: 4px;">Browse Menu</a>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error in direct cart access:', error);
+                    });
+            }
+        }, 3000); // Wait 3 seconds before trying this approach
+        
+        // Helper function to show cart display
+        function showCartDisplay(data) {
+            const cartContainer = document.getElementById('cart-container');
+            if (!cartContainer) return;
+            
+            // Construct a better cart display
+            let html = '<div style="padding: 20px; text-align: center;">';
+            html += '<h3 style="color: #ff6b6b; margin-bottom: 20px;">Your Cart Items</h3>';
+            html += '<div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 20px;">';
+            
+            // Cart items table
+            html += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">';
+            html += '<thead><tr style="border-bottom: 2px solid #eee; text-align: left;">';
+            html += '<th style="padding: 10px;">Item</th>';
+            html += '<th style="padding: 10px; text-align: center;">Price</th>';
+            html += '<th style="padding: 10px; text-align: center;">Quantity</th>';
+            html += '<th style="padding: 10px; text-align: right;">Subtotal</th>';
+            html += '</tr></thead><tbody>';
+            
+            let totalItems = 0;
+            
+            data.items.forEach(item => {
+                const menuItem = item.menuItem;
+                if (menuItem) {
+                    const name = menuItem.name;
+                    const price = parseFloat(menuItem.price).toFixed(2);
+                    const quantity = item.quantity;
+                    const subtotal = (price * quantity).toFixed(2);
+                    totalItems += quantity;
+                    
+                    html += `<tr style="border-bottom: 1px solid #eee;">`;
+                    html += `<td style="padding: 10px;"><strong>${name}</strong></td>`;
+                    html += `<td style="padding: 10px; text-align: center;">$${price}</td>`;
+                    html += `<td style="padding: 10px; text-align: center;">${quantity}</td>`;
+                    html += `<td style="padding: 10px; text-align: right;">$${subtotal}</td>`;
+                    html += `</tr>`;
+                }
+            });
+            
+            html += '</tbody></table>';
+            
+            // Order summary
+            html += '<div style="display: flex; justify-content: space-between; padding: 15px 0; border-top: 2px solid #eee; margin-top: 20px;">';
+            html += `<div style="font-size: 18px;"><strong>Total (${totalItems} item${totalItems > 1 ? 's' : ''})</strong></div>`;
+            html += `<div style="font-size: 18px; color: #ff6b6b;"><strong>$${parseFloat(data.total).toFixed(2)}</strong></div>`;
+            html += '</div>';
+            
+            // Action buttons
+            html += '<div style="display: flex; gap: 15px; margin-top: 20px;">';
+            html += '<a href="menu.html" style="flex: 1; padding: 12px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; text-align: center;">Continue Shopping</a>';
+            html += '<button id="checkout-btn" style="flex: 1; padding: 12px; background-color: #ff6b6b; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Proceed to Checkout</button>';
+            html += '</div>';
+            
+            html += '</div></div>';
+            
+            cartContainer.innerHTML = html;
+            
+            // Add checkout button event listener
+            setTimeout(() => {
+                const checkoutBtn = document.getElementById('checkout-btn');
+                if (checkoutBtn) {
+                    checkoutBtn.addEventListener('click', function() {
+                        // Check if user is logged in
+                        const isLoggedIn = document.getElementById('user-profile') && 
+                                          !document.getElementById('user-profile').classList.contains('hidden');
+                        
+                        if (isLoggedIn) {
+                            showCheckoutForm(data);
+                        } else {
+                            alert('Please login to checkout');
+                            const loginModal = document.getElementById('login-modal');
+                            if (loginModal) loginModal.style.display = 'block';
+                        }
+                    });
+                }
+            }, 100);
+        }
+        
+        // Function to show checkout form
+        function showCheckoutForm(cartData) {
+            const cartContainer = document.getElementById('cart-container');
+            if (!cartContainer) return;
+            
+            let html = '<div style="padding: 20px; text-align: center;">';
+            html += '<h3 style="color: #ff6b6b; margin-bottom: 20px;">Checkout</h3>';
+            html += '<div style="max-width: 800px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 20px;">';
+            
+            // Order summary
+            html += '<div style="margin-bottom: 30px; text-align: left;">';
+            html += '<h4 style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Order Summary</h4>';
+            html += '<table style="width: 100%; border-collapse: collapse;">';
+            
+            cartData.items.forEach(item => {
+                const menuItem = item.menuItem;
+                if (menuItem) {
+                    const name = menuItem.name;
+                    const price = parseFloat(menuItem.price).toFixed(2);
+                    const quantity = item.quantity;
+                    const subtotal = (price * quantity).toFixed(2);
+                    
+                    html += `<tr style="border-bottom: 1px solid #eee;">`;
+                    html += `<td style="padding: 8px;">${name} x ${quantity}</td>`;
+                    html += `<td style="padding: 8px; text-align: right;">$${subtotal}</td>`;
+                    html += `</tr>`;
+                }
+            });
+            
+            html += `<tr style="font-weight: bold;">`;
+            html += `<td style="padding: 12px;">Total</td>`;
+            html += `<td style="padding: 12px; text-align: right;">$${parseFloat(cartData.total).toFixed(2)}</td>`;
+            html += `</tr>`;
+            html += '</table>';
+            html += '</div>';
+            
+            // Checkout form
+            html += '<form id="checkout-form-direct" style="text-align: left;">';
+            
+            // Delivery details
+            html += '<h4 style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Delivery Details</h4>';
+            
+            html += '<div style="margin-bottom: 15px;">';
+            html += '<label style="display: block; margin-bottom: 5px; font-weight: bold;">Delivery Address</label>';
+            html += '<input type="text" id="delivery-address" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" required>';
+            html += '</div>';
+            
+            // Payment method
+            html += '<div style="margin-bottom: 15px;">';
+            html += '<label style="display: block; margin-bottom: 5px; font-weight: bold;">Payment Method</label>';
+            html += '<select id="payment-method" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" required>';
+            html += '<option value="">Select Payment Method</option>';
+            html += '<option value="CREDIT_CARD">Credit Card</option>';
+            html += '<option value="CASH">Cash on Delivery</option>';
+            html += '<option value="PAYPAL">PayPal</option>';
+            html += '</select>';
+            html += '</div>';
+            
+            // Special instructions
+            html += '<div style="margin-bottom: 25px;">';
+            html += '<label style="display: block; margin-bottom: 5px; font-weight: bold;">Special Instructions</label>';
+            html += '<textarea id="special-instructions" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; min-height: 80px;"></textarea>';
+            html += '</div>';
+            
+            // Buttons
+            html += '<div style="display: flex; gap: 15px;">';
+            html += '<button type="button" id="back-to-cart" style="flex: 1; padding: 12px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Back to Cart</button>';
+            html += '<button type="submit" style="flex: 1; padding: 12px; background-color: #ff6b6b; color: white; border: none; border-radius: 4px; cursor: pointer;">Place Order</button>';
+            html += '</div>';
+            
+            html += '</form>';
+            html += '</div></div>';
+            
+            cartContainer.innerHTML = html;
+            
+            // Add event listeners
+            setTimeout(() => {
+                // Back button
+                const backBtn = document.getElementById('back-to-cart');
+                if (backBtn) {
+                    backBtn.addEventListener('click', function() {
+                        // Trigger the direct cart display again
+                        cartContainer.innerHTML = '<div class="loading">Loading your cart...</div>';
+                        setTimeout(() => {
+                            showCartDisplay(cartData);
+                        }, 100);
+                    });
+                }
+                
+                // Form submission
+                const checkoutForm = document.getElementById('checkout-form-direct');
+                if (checkoutForm) {
+                    checkoutForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        const deliveryAddress = document.getElementById('delivery-address').value;
+                        const paymentMethod = document.getElementById('payment-method').value;
+                        const specialInstructions = document.getElementById('special-instructions').value;
+                        
+                        if (!deliveryAddress) {
+                            alert('Please enter a delivery address');
+                            return;
+                        }
+                        
+                        if (!paymentMethod) {
+                            alert('Please select a payment method');
+                            return;
+                        }
+                        
+                        // Create order object
+                        const order = {
+                            deliveryAddress: deliveryAddress,
+                            paymentMethod: paymentMethod,
+                            specialInstructions: specialInstructions,
+                            totalAmount: parseFloat(cartData.total || 0)
+                        };
+                        
+                        console.log('Placing order with total amount:', parseFloat(cartData.total || 0));
+                        
+                        // Show processing
+                        const submitBtn = checkoutForm.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.textContent = 'Processing...';
+                        }
+                        
+                        // Send order to server
+                        fetch('api/orders', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(order)
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to place order');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            // Extract order details from response
+                            const orderId = data.order ? data.order.id : 'N/A';
+                            
+                            // Show success message
+                            cartContainer.innerHTML = `
+                                <div style="text-align: center; padding: 40px 20px;">
+                                    <i class="fas fa-check-circle" style="font-size: 4rem; color: #28a745; margin-bottom: 20px;"></i>
+                                    <h3>Order Placed Successfully!</h3>
+                                    <p>Thank you for your order. Your order number is: <strong>#${orderId}</strong></p>
+                                    <p>We'll prepare your food and deliver it to you soon.</p>
+                                    <div style="margin-top: 20px;">
+                                        <a href="orders.html" style="display: inline-block; padding: 10px 20px; background-color: #ff6b6b; color: white; text-decoration: none; border-radius: 4px; margin-right: 10px;">View Orders</a>
+                                        <a href="menu.html" style="display: inline-block; padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px;">Back to Menu</a>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // Clear cart
+                            fetch('api/cart-service', {
+                                method: 'DELETE'
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error placing order:', error);
+                            alert('Failed to place order. Please try again.');
+                            
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = 'Place Order';
+                            }
+                        });
+                    });
+                }
+            }, 100);
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,37 @@
+# Bistro Restaurant Web Application Dependencies
+
+## Core Dependencies
+- Java 11 or higher
+- MySQL 8.0 or higher
+- Apache Maven 3.6 or higher
+- Apache Tomcat 9 or higher (embedded via Maven plugin)
+
+## Maven Dependencies
+- javax.servlet-api:4.0.1
+- jstl:1.2
+- mysql-connector-java:8.0.28
+- com.zaxxer:HikariCP:5.0.1
+- com.fasterxml.jackson.core:jackson-databind:2.13.2
+- org.mindrot:jbcrypt:0.4
+- org.slf4j:slf4j-api:1.7.36
+- ch.qos.logback:logback-classic:1.2.10
+
+## JavaScript Libraries (CDN)
+- Font Awesome 6.0.0-beta3 (CSS)
+
+## Development Tools
+- IDE with Java support (Eclipse, IntelliJ IDEA, VS Code)
+- MySQL Workbench or other database management tool
+
+## Installation Instructions
+1. Install Java 11 or higher
+2. Install MySQL 8.0 or higher
+3. Install Apache Maven 3.6 or higher
+4. Clone the repository
+5. Run the database setup script: 
+   - For Windows: `mysql -u root -p -e "source src/main/resources/db/bistro_db.sql"`
+   - For Linux/Mac: `mysql -u root -p < src/main/resources/db/bistro_db.sql`
+6. Run the application:
+   - For Windows: `run.bat`
+   - For Linux/Mac: `./run.sh` (make it executable first with `chmod +x run.sh`)
+7. Access the application at http://localhost:8080/

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bistro Restaurant - Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Add theme color for mobile browsers -->
+    <meta name="theme-color" content="#ff6b6b">
+    <!-- Add apple touch icon -->
+    <link rel="apple-touch-icon" href="images/logo.png">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1>Bistro</h1>
+            </div>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav id="main-nav">
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="menu.html">Menu</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="orders.html" id="orders-link">My Orders</a></li>
+                    <li><a href="admin.html" class="active" id="admin">Admin</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <button id="cart-btn"><i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span></button>
+                <button id="login-btn" class="auth-btn">Login</button>
+                <button id="register-btn" class="auth-btn">Register</button>
+                <div id="user-profile" class="hidden">
+                    <span id="username-display"></span>
+                    <button id="logout-btn">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Section -->
+    <section id="admin" class="section active">
+        <div class="container">
+            <h2>Admin Dashboard</h2>
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+                <button class="tab-btn" data-tab="menu-management">Menu Management</button>
+                <button class="tab-btn" data-tab="order-management">Order Management</button>
+                <button class="tab-btn" data-tab="user-management">User Management</button>
+            </div>
+            <div class="tab-content active" id="dashboard-tab">
+                <!-- Dashboard content will be loaded dynamically -->
+                <div class="loading">Loading dashboard...</div>
+            </div>
+            <div class="tab-content" id="menu-management-tab">
+                <!-- Menu management content will be loaded dynamically -->
+                <div class="loading">Loading menu management...</div>
+            </div>
+            <div class="tab-content" id="order-management-tab">
+                <!-- Order management content will be loaded dynamically -->
+                <div class="loading">Loading order management...</div>
+            </div>
+            <div class="tab-content" id="user-management-tab">
+                <!-- User management content will be loaded dynamically -->
+                <div class="loading">Loading user management...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3>Bistro Restaurant</h3>
+                    <p>Experience the finest dining with our exquisite menu and exceptional service. We are committed to providing our customers with an unforgettable dining experience.</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-hours">
+                    <h3>Opening Hours</h3>
+                    <ul>
+                        <li><span>Monday - Friday:</span> 11:00 AM - 10:00 PM</li>
+                        <li><span>Saturday - Sunday:</span> 10:00 AM - 11:00 PM</li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Main Street, City, Country</p>
+                    <p><i class="fas fa-phone"></i> +1 234 567 890</p>
+                    <p><i class="fas fa-envelope"></i> info@bistro.com</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Bistro Restaurant. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+            <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Register</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">Confirm Password</label>
+                    <input type="password" id="register-confirm-password" name="confirm-password" required>
+                </div>
+                <button type="submit" class="btn-primary">Register</button>
+            </form>
+            <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="user-details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>User Details</h2>
+            <div id="user-details">
+                <!-- User details will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="edit-user-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit User</h2>
+            <form id="edit-user-form">
+                <input type="hidden" id="edit-user-id" name="id">
+                <div class="form-group">
+                    <label for="edit-user-username">Username</label>
+                    <input type="text" id="edit-user-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-user-email">Email</label>
+                    <input type="email" id="edit-user-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-user-first-name">First Name</label>
+                    <input type="text" id="edit-user-first-name" name="firstName">
+                </div>
+                <div class="form-group">
+                    <label for="edit-user-last-name">Last Name</label>
+                    <input type="text" id="edit-user-last-name" name="lastName">
+                </div>
+                <div class="form-group">
+                    <label for="edit-user-role">Role</label>
+                    <select id="edit-user-role" name="role" required>
+                        <option value="ADMIN">Admin</option>
+                        <option value="STAFF">Staff</option>
+                        <option value="CUSTOMER">Customer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-user-phone">Phone</label>
+                    <input type="text" id="edit-user-phone" name="phone">
+                </div>
+                <div class="form-group">
+                    <label for="edit-user-address">Address</label>
+                    <input type="text" id="edit-user-address" name="address">
+                </div>
+                <button type="submit" class="btn-primary">Update User</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="add-user-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Add New User</h2>
+            <form id="add-user-form">
+                <div class="form-group">
+                    <label for="add-user-username">Username</label>
+                    <input type="text" id="add-user-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="add-user-email">Email</label>
+                    <input type="email" id="add-user-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="add-user-password">Password</label>
+                    <input type="password" id="add-user-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="add-user-first-name">First Name</label>
+                    <input type="text" id="add-user-first-name" name="firstName">
+                </div>
+                <div class="form-group">
+                    <label for="add-user-last-name">Last Name</label>
+                    <input type="text" id="add-user-last-name" name="lastName">
+                </div>
+                <div class="form-group">
+                    <label for="add-user-role">Role</label>
+                    <select id="add-user-role" name="role" required>
+                        <option value="ADMIN">Admin</option>
+                        <option value="STAFF">Staff</option>
+                        <option value="CUSTOMER">Customer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="add-user-phone">Phone</label>
+                    <input type="text" id="add-user-phone" name="phone">
+                </div>
+                <div class="form-group">
+                    <label for="add-user-address">Address</label>
+                    <input type="text" id="add-user-address" name="address">
+                </div>
+                <button type="submit" class="btn-primary">Add User</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Menu Item Modal -->
+    <div id="menu-item-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="menu-item-form-title">Add New Menu Item</h2>
+            <form id="menu-item-form">
+                <input type="hidden" id="menu-item-id" name="id">
+                <div class="form-group">
+                    <label for="menu-item-name">Name</label>
+                    <input type="text" id="menu-item-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="menu-item-description">Description</label>
+                    <textarea id="menu-item-description" name="description" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="menu-item-price">Price</label>
+                    <input type="number" id="menu-item-price" name="price" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="menu-item-category">Category</label>
+                    <select id="menu-item-category" name="category" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="menu-item-image-url">Image URL</label>
+                    <input type="text" id="menu-item-image-url" name="imageUrl">
+                </div>
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="menu-item-available" name="available" checked>
+                    <label for="menu-item-available">Available</label>
+                </div>
+                <div class="form-group checkbox">
+                    <input type="checkbox" id="menu-item-featured" name="featured">
+                    <label for="menu-item-featured">Featured</label>
+                </div>
+                <button type="submit" class="btn-primary">Save Menu Item</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="order-details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Order Details</h2>
+            <div id="order-details">
+                <!-- Order details will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        // Initialize admin page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            if (user) {
+                // Show orders link
+                const ordersLink = document.getElementById('orders-link');
+                if (ordersLink) {
+                    ordersLink.classList.remove('hidden');
+                }
+                
+                // Check if user is admin or staff
+                if (user.role === 'ADMIN' || user.role === 'STAFF') {
+                    // Show admin link
+                    const adminLink = document.getElementById('admin');
+                    if (adminLink) {
+                        adminLink.classList.remove('hidden');
+                    }
+                    
+                    // Add click event listeners to admin tabs
+                    document.querySelectorAll('.tab-btn').forEach(function(tab) {
+                        tab.addEventListener('click', function() {
+                            // Remove active class from all tabs
+                            document.querySelectorAll('.tab-btn').forEach(function(t) {
+                                t.classList.remove('active');
+                            });
+                                
+                            // Add active class to clicked tab
+                            this.classList.add('active');
+                            
+                            // Get tab id
+                            var tabId = this.getAttribute('data-tab');
+                            
+                            // Hide all tab contents
+                            document.querySelectorAll('.tab-content').forEach(function(content) {
+                                content.classList.remove('active');
+                            });
+                            
+                            // Show selected tab content
+                            document.getElementById(tabId + '-tab').classList.add('active');
+                            
+                            // Load content based on tab
+                            if (tabId === 'dashboard' && typeof loadDashboardContent === 'function') {
+                                loadDashboardContent();
+                            } else if (tabId === 'menu-management' && typeof loadMenuManagementContent === 'function') {
+                                loadMenuManagementContent();
+                            } else if (tabId === 'order-management' && typeof loadOrderManagementContent === 'function') {
+                                loadOrderManagementContent();
+                            } else if (tabId === 'user-management' && typeof loadUserManagementContent === 'function') {
+                                loadUserManagementContent();
+                            }
+                        });
+                    });
+                    
+                    // Load dashboard content by default
+                    if (typeof loadDashboardContent === 'function') {
+                        loadDashboardContent();
+                    }
+                } else {
+                    // Redirect to home if not admin or staff
+                    alert('You do not have permission to access the admin dashboard');
+                    window.location.href = 'home.html';
+                }
+            } else {
+                // Redirect to login if not logged in
+                alert('Please login to access the admin dashboard');
+                window.location.href = 'home.html';
+            }
+        });
+    </script>
+</body>
+</html>
