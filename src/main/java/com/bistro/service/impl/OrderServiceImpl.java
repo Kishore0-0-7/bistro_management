@@ -224,9 +224,40 @@ public class OrderServiceImpl implements OrderService {
             throw new Exception("Order not found");
         }
         
-        logger.info("Updating status for order ID: {} to: {}", orderId, status);
+        Order existingOrder = orderOpt.get();
+        BigDecimal originalAmount = existingOrder.getTotalAmount();
+        logger.info("Updating status for order ID: {} from {} to: {}, original totalAmount: {}", 
+                  orderId, existingOrder.getStatus(), status, originalAmount);
         
-        return orderDAO.updateStatus(orderId, status);
+        // The DAO method now preserves the total amount internally
+        boolean updated = orderDAO.updateStatus(orderId, status);
+        
+        if (updated) {
+            // Verify the update was successful and total amount preserved
+            Optional<Order> updatedOrderOpt = orderDAO.findById(orderId);
+            if (updatedOrderOpt.isPresent()) {
+                Order updatedOrder = updatedOrderOpt.get();
+                BigDecimal updatedAmount = updatedOrder.getTotalAmount();
+                
+                // Only fix if the total amount was reset to zero or null
+                // This respects manual changes where the amount was changed but not lost
+                if ((updatedAmount == null || updatedAmount.compareTo(BigDecimal.ZERO) == 0) &&
+                    (originalAmount != null && originalAmount.compareTo(BigDecimal.ZERO) > 0)) {
+                    
+                    logger.warn("Total amount was reset to zero after status update for order ID: {}, restoring original amount: {}", 
+                              orderId, originalAmount);
+                    updatedOrder.setTotalAmount(originalAmount);
+                    orderDAO.update(updatedOrder);
+                } else if (updatedAmount != null && updatedAmount.compareTo(BigDecimal.ZERO) > 0 && 
+                          !updatedAmount.equals(originalAmount)) {
+                    // If the amount changed but is not zero, it was likely manually updated
+                    logger.info("Total amount changed from {} to {} for order ID: {} - likely a manual update, preserving new value",
+                              originalAmount, updatedAmount, orderId);
+                }
+            }
+        }
+        
+        return updated;
     }
     
     @Override

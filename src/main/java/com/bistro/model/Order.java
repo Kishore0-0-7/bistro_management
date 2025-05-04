@@ -74,9 +74,30 @@ public class Order {
     
     // Method to calculate the total amount of the order
     public void calculateTotal() {
-        this.totalAmount = this.orderItems.stream()
-                .map(item -> item.getPrice().multiply(new BigDecimal(item.getQuantity())))
+        // Don't calculate if there are no items - preserve the existing amount if it's non-zero
+        if (this.orderItems == null || this.orderItems.isEmpty()) {
+            if (this.totalAmount == null) {
+                this.totalAmount = BigDecimal.ZERO;
+            }
+            return;
+        }
+        
+        // Calculate total from items
+        BigDecimal calculatedTotal = this.orderItems.stream()
+                .filter(item -> item != null && item.getPrice() != null) // Safe filtering for null items/prices
+                .map(item -> {
+                    BigDecimal price = item.getPrice();
+                    int quantity = item.getQuantity();
+                    return price.multiply(new BigDecimal(quantity));
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        // Only update if we calculated a non-zero value or the current total is null/zero
+        if (calculatedTotal.compareTo(BigDecimal.ZERO) > 0 || 
+            this.totalAmount == null || 
+            this.totalAmount.compareTo(BigDecimal.ZERO) == 0) {
+            this.totalAmount = calculatedTotal;
+        }
     }
     
     // Getters and Setters
@@ -166,7 +187,14 @@ public class Order {
     
     public void setOrderItems(List<OrderItem> orderItems) {
         this.orderItems = orderItems;
-        this.calculateTotal();
+        
+        // Only recalculate total if:
+        // 1. We have valid order items AND
+        // 2. The current total amount is null or zero (otherwise we'd overwrite existing valid totals)
+        if (orderItems != null && !orderItems.isEmpty() && 
+            (this.totalAmount == null || this.totalAmount.compareTo(BigDecimal.ZERO) == 0)) {
+            this.calculateTotal();
+        }
     }
     
     @Override

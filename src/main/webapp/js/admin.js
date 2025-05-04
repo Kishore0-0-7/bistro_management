@@ -1789,10 +1789,7 @@ function getOrderDetails(orderId) {
 
 // Update order status
 function updateOrderStatus(orderId, currentStatus) {
-    // Store the original orderId for logging purposes
-    const originalOrderId = orderId;
-    
-    // Handle IDs with '#' prefix
+    // Strip # from orderId if present
     if (typeof orderId === 'string' && orderId.startsWith('#')) {
         orderId = orderId.substring(1);
     }
@@ -1816,22 +1813,22 @@ function updateOrderStatus(orderId, currentStatus) {
         <div class="modal-content">
             <span class="close-modal">&times;</span>
             <h3>Update Order Status</h3>
-                <div class="form-group">
+            <div class="form-group">
                 <label for="order-status">New status for Order #${orderId}:</label>
                 <select id="order-status" class="form-control">
-                        ${optionsHtml}
-                    </select>
-                </div>
+                    ${optionsHtml}
+                </select>
+            </div>
             <div class="form-actions">
                 <button id="cancel-status-update" class="btn-secondary">Cancel</button>
                 <button id="confirm-status-update" class="btn-primary">Update</button>
-                </div>
+            </div>
         </div>
     `;
     
     document.body.appendChild(modal);
     
-    // Add event listeners
+    // Add event listeners for modal controls
     const closeButton = modal.querySelector('.close-modal');
     const cancelButton = modal.querySelector('#cancel-status-update');
     const confirmButton = modal.querySelector('#confirm-status-update');
@@ -1857,7 +1854,7 @@ function updateOrderStatus(orderId, currentStatus) {
         const newStatus = statusSelect.value;
         
         if (newStatus && newStatus !== currentStatus) {
-            // Change button state
+            // Change button state to show processing
             confirmButton.disabled = true;
             confirmButton.textContent = 'Updating...';
             
@@ -1867,7 +1864,7 @@ function updateOrderStatus(orderId, currentStatus) {
             loadingModal.innerHTML = '<div class="loading-spinner"></div>';
             document.body.appendChild(loadingModal);
             
-            // First, get the full order details from the server
+            // Our improved approach - always get the order first to ensure we have all the data
             fetch(`api/orders/${orderId}`)
                 .then(response => {
                     if (!response.ok) {
@@ -1876,74 +1873,102 @@ function updateOrderStatus(orderId, currentStatus) {
                     return response.json();
                 })
                 .then(orderData => {
-                    console.log('Server order data:', orderData);
+                    console.log("Retrieved order data for update:", orderData);
                     
-                    // Create a complete update with all existing data, just change status
-                    const updatedOrder = {
-                        ...orderData,
-                        status: newStatus
-                    };
+                    // Store the exact totalAmount as received, without parsing
+                    const originalTotal = orderData.totalAmount;
                     
-                    // Ensure the totalAmount is preserved
-                    console.log('Total amount in original order:', orderData.totalAmount);
-                    console.log('Total amount in updated order:', updatedOrder.totalAmount);
-                    
-                    // Now perform the update
-                    return fetch(`api/orders/${orderId}`, {
+                    // Try the status-specific endpoint first
+                    return fetch(`api/orders/${orderId}/status`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(updatedOrder)
-                    });
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Failed to update order: ${response.status} ${response.statusText}`);
-                    }
-                    return response.json();
-                })
-                .then(result => {
-                    document.body.removeChild(loadingModal);
-                    closeModal();
-                    
-                    console.log('Order update result:', result);
-                    alert(`Order #${orderId} status updated to: ${newStatus}`);
-                    
-                    // Refresh the display
-                    loadOrderManagementContent();
-                    
-                    // Also refresh order details if modal is open
-                    const orderDetailsModal = document.getElementById('order-details-modal');
-                    if (orderDetailsModal && orderDetailsModal.style.display === 'block') {
-                        viewOrderDetails(orderId);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating order status:', error);
-                    
-                    // Try backup approach using a specific PATCH operation if available
-                    fetch(`api/orders/${orderId}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ status: newStatus })
+                        body: JSON.stringify({
+                            status: newStatus,
+                            // Include the payment method as it's required
+                            paymentMethod: orderData.paymentMethod || 'CREDIT_CARD',
+                            // Include the total amount to preserve it - send as string to maintain exact precision
+                            totalAmount: originalTotal
+                        })
                     })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error(`PATCH request failed: ${response.status} ${response.statusText}`);
+                            // If the status endpoint fails, use the fallback method
+                            console.log("Status endpoint failed, using full update fallback");
+                            
+                            // Simple update with just the fields we need to change
+                            const updateData = {
+                                id: orderId,
+                                status: newStatus,
+                                totalAmount: originalTotal,
+                                paymentMethod: orderData.paymentMethod || 'CREDIT_CARD'
+                            };
+                            
+                            console.log("Using fallback update with data:", updateData);
+                            
+                            return fetch(`api/orders/${orderId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(updateData)
+                            });
+                        }
+                        return response;
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Failed to update order: ${response.status} ${response.statusText}`);
                         }
                         return response.json();
                     })
                     .then(result => {
+                        console.log("Update result:", result);
+                        
+                        // After successful update, verify the updated order still has the correct total
+                        return fetch(`api/orders/${orderId}`)
+                            .then(response => response.json())
+                            .then(verifiedOrder => {
+                                console.log("Verification check - updated order:", verifiedOrder);
+                                
+                                // Only apply a fix if the total amount was actually lost (set to zero or null)
+                                // NOT if it was manually changed to a different non-zero value
+                                if ((verifiedOrder.totalAmount === 0 || verifiedOrder.totalAmount === "0" || verifiedOrder.totalAmount === null) && 
+                                    originalTotal !== 0 && originalTotal !== "0" && originalTotal !== null) {
+                                    console.log("Total amount was lost, making one final fix...");
+                                    
+                                    // Create a minimal update to restore just the total amount
+                                    const fixData = {
+                                        id: orderId,
+                                        status: newStatus,
+                                        totalAmount: originalTotal,
+                                        paymentMethod: orderData.paymentMethod || 'CREDIT_CARD'
+                                    };
+                                    
+                                    return fetch(`api/orders/${orderId}`, {
+                                        method: 'PUT',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify(fixData)
+                                    })
+                                    .then(response => response.json())
+                                    .then(finalResult => {
+                                        console.log("Final fix result:", finalResult);
+                                        return finalResult;
+                                    });
+                                }
+                                
+                                return result;
+                            });
+                    })
+                    .then(() => {
                         document.body.removeChild(loadingModal);
                         closeModal();
-                        
-                        console.log('Order update result (PATCH method):', result);
                         alert(`Order #${orderId} status updated to: ${newStatus}`);
                         
-                        // Refresh the display
+                        // Refresh the order management view
                         loadOrderManagementContent();
                         
                         // Also refresh order details if modal is open
@@ -1951,46 +1976,14 @@ function updateOrderStatus(orderId, currentStatus) {
                         if (orderDetailsModal && orderDetailsModal.style.display === 'block') {
                             viewOrderDetails(orderId);
                         }
-                    })
-                    .catch(patchError => {
-                        console.error('PATCH request also failed:', patchError);
-                        
-                        // Final fallback: try with jQuery to use a different XHR implementation
-                        $.ajax({
-                            url: `api/orders/${orderId}`,
-                            type: 'PUT',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                id: orderId,
-                                status: newStatus,
-                                // This should tell the server not to modify totalAmount
-                                _preserveTotalAmount: true
-                            }),
-                            success: function(data) {
-                                document.body.removeChild(loadingModal);
-                                closeModal();
-                                
-                                console.log('Order update result (jQuery fallback):', data);
-                                alert(`Order #${orderId} status updated to: ${newStatus}`);
-                                
-                                // Refresh the display
-                                loadOrderManagementContent();
-                                
-                                // Also refresh order details if modal is open
-                                const orderDetailsModal = document.getElementById('order-details-modal');
-                                if (orderDetailsModal && orderDetailsModal.style.display === 'block') {
-                                    viewOrderDetails(orderId);
-                                }
-                            },
-                            error: function(jqXHR) {
-                                document.body.removeChild(loadingModal);
-                                alert(`Error updating order status: ${error.message || 'Unknown error'}`);
-                                console.error('All update attempts failed:', error, patchError, jqXHR);
-                                confirmButton.disabled = false;
-                                confirmButton.textContent = 'Update';
-                            }
-                        });
                     });
+                })
+                .catch(error => {
+                    console.error("Error updating order status:", error);
+                    document.body.removeChild(loadingModal);
+                    alert(`Failed to update order status: ${error.message}`);
+                    confirmButton.disabled = false;
+                    confirmButton.textContent = 'Update';
                 });
         } else {
             closeModal();
