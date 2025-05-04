@@ -193,7 +193,7 @@ public class Order {
         // 2. The current total amount is null or zero (otherwise we'd overwrite existing valid totals)
         if (orderItems != null && !orderItems.isEmpty() && 
             (this.totalAmount == null || this.totalAmount.compareTo(BigDecimal.ZERO) == 0)) {
-            this.calculateTotal();
+        this.calculateTotal();
         }
     }
     

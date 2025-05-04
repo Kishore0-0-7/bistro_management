@@ -1,192 +1,336 @@
-// Main application script
+// Main Application Script
 
 // DOM Elements
-const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-const mainNav = document.getElementById('main-nav');
-const orderNowBtn = document.getElementById('order-now-btn');
-const cartBtn = document.getElementById('cart-btn');
-const cartCount = document.getElementById('cart-count');
-const modals = document.querySelectorAll('.modal');
-const closeButtons = document.querySelectorAll('.close-modal');
+let mobileMenuToggle, mainNav, mainNavLinks, pageTitle;
 
-// Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('App initializing...');
-    
-    // Check if user is logged in
-    checkAuthentication();
+// Initialize app when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize DOM elements
+    initAppElements();
     
     // Set up event listeners
-    setupEventListeners();
+    setupAppEventListeners();
     
-    // Load cart count
-    updateCartCount();
+    // Initialize mobile menu
+    initMobileMenu();
     
-    // Load page-specific content
-    loadPageContent();
+    // Highlight current page in navigation
+    highlightCurrentPage();
+    
+    // Update page title based on current page
+    updatePageTitle();
+    
+    // Update user avatars across the site
+    updateUserAvatar();
 });
 
-// Set up event listeners
-function setupEventListeners() {
-    console.log('Setting up event listeners...');
+// Initialize DOM elements
+function initAppElements() {
+    // Navigation elements
+    mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    mainNav = document.getElementById('main-nav');
+    mainNavLinks = document.querySelectorAll('#main-nav a');
     
+    // Page title element for dynamic updates
+    pageTitle = document.querySelector('title');
+}
+
+// Set up app event listeners
+function setupAppEventListeners() {
     // Mobile menu toggle
     if (mobileMenuToggle) {
-        mobileMenuToggle.addEventListener('click', () => {
-            console.log('Mobile menu toggle clicked');
-            if (mainNav) {
-                mainNav.classList.toggle('active');
-            }
-        });
-    } else {
-        console.error('Mobile menu toggle not found');
+        mobileMenuToggle.addEventListener('click', toggleMobileMenu);
     }
     
-    // Close mobile menu when window is resized to desktop size
-    window.addEventListener('resize', () => {
-        if (window.innerWidth > 768 && mainNav) {
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (mainNav && mainNav.classList.contains('active') &&
+            !e.target.closest('#main-nav') && 
+            !e.target.closest('#mobile-menu-toggle')) {
             mainNav.classList.remove('active');
         }
     });
     
-    // Order now button
-    if (orderNowBtn) {
-        orderNowBtn.addEventListener('click', () => {
-            console.log('Order now button clicked');
-            window.location.href = 'menu.html';
+    // Add section transition animation for all nav links
+    mainNavLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Only handle internal navigation (not external links)
+            if (this.getAttribute('href').startsWith('#')) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                showSection(targetId);
+            }
         });
-    }
-    
-    // Close modal buttons
-    if (closeButtons && closeButtons.length > 0) {
-        closeButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                closeAllModals();
-            });
-        });
-    } else {
-        console.error('Close modal buttons not found');
-    }
-    
-    // Close modal when clicking outside
-    if (modals && modals.length > 0) {
-        window.addEventListener('click', (e) => {
-            modals.forEach(modal => {
-                if (e.target === modal) {
-                    closeAllModals();
-                }
-            });
-        });
-    } else {
-        console.error('Modals not found');
-    }
-}
-
-// Load page-specific content
-function loadPageContent() {
-    // Get current page from URL
-    const currentPage = window.location.pathname.split('/').pop();
-    console.log('Current page:', currentPage);
-    
-    // Load content based on page
-    switch (currentPage) {
-        case 'home.html':
-        case '':
-        case 'index.html':
-            if (typeof loadFeaturedItems === 'function') {
-                loadFeaturedItems();
-            }
-            break;
-        case 'menu.html':
-            if (typeof loadMenuItems === 'function') {
-                loadMenuItems();
-            }
-            break;
-        case 'orders.html':
-            // Check if user is logged in
-            if (isLoggedIn()) {
-                if (typeof loadUserOrders === 'function') {
-                    loadUserOrders();
-                }
-            } else {
-                // Redirect to home if not logged in
-                alert('Please login to view your orders');
-                window.location.href = 'home.html';
-            }
-            break;
-        case 'admin.html':
-            // Check if user is admin or staff
-            const user = JSON.parse(sessionStorage.getItem('user'));
-            if (user && (user.role === 'ADMIN' || user.role === 'STAFF')) {
-                if (typeof loadAdminDashboard === 'function') {
-                    loadAdminDashboard();
-                }
-            } else {
-                // Redirect to home if not admin or staff
-                alert('You do not have permission to access the admin dashboard');
-                window.location.href = 'home.html';
-            }
-            break;
-    }
-}
-
-// Update cart count
-function updateCartCount() {
-    // Fetch current cart from server
-    fetch('api/cart-service')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            const count = data.items.reduce((total, item) => total + item.quantity, 0);
-            
-            // Update all cart count elements
-            const cartCountElements = document.querySelectorAll('#cart-count');
-            cartCountElements.forEach(element => {
-                element.textContent = count;
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching cart count from server:', error);
-            
-            // Set cart count to 0 if error
-            const cartCountElements = document.querySelectorAll('#cart-count');
-            cartCountElements.forEach(element => {
-                element.textContent = "0";
-            });
-        });
-}
-
-// Show modal
-function showModal(modalId) {
-    console.log(`Showing modal: ${modalId}`);
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        console.log(`Found modal element, displaying it`);
-        modal.style.display = 'block';
-    } else {
-        console.error(`Modal not found: ${modalId}`);
-    }
-}
-
-// Close all modals
-function closeAllModals() {
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        modal.style.display = 'none';
     });
 }
 
-// Check if user is logged in
-function isLoggedIn() {
-    return sessionStorage.getItem('user') !== null;
+// Initialize mobile menu
+function initMobileMenu() {
+    // Add CSS for mobile animation if needed
+    if (!document.getElementById('mobile-menu-style')) {
+        const style = document.createElement('style');
+        style.id = 'mobile-menu-style';
+        style.textContent = `
+            @media (max-width: 768px) {
+                #main-nav {
+                    transition: max-height 0.3s ease-in-out;
+                    overflow: hidden;
+                    max-height: 0;
+                }
+                #main-nav.active {
+                    max-height: 500px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// Toggle mobile menu
+function toggleMobileMenu() {
+    if (mainNav) {
+        mainNav.classList.toggle('active');
+    }
+}
+
+// Show section with smooth transition
+function showSection(sectionId) {
+    const sections = document.querySelectorAll('.section');
+    const targetSection = document.getElementById(sectionId);
+    
+    if (!targetSection) return;
+    
+    // Fade out current sections
+    sections.forEach(section => {
+        if (section.classList.contains('active')) {
+            // Add exit animation
+            section.style.opacity = '0';
+            setTimeout(() => {
+                section.classList.remove('active');
+                section.style.opacity = '';
+            }, 300);
+        }
+    });
+    
+    // Fade in target section
+    setTimeout(() => {
+        targetSection.classList.add('active');
+        targetSection.style.opacity = '0';
+        
+        // Trigger browser reflow
+        targetSection.offsetHeight;
+        
+        // Fade in
+        targetSection.style.opacity = '1';
+        targetSection.style.transition = 'opacity 0.3s ease-in-out';
+        
+        // Reset transition after animation
+        setTimeout(() => {
+            targetSection.style.transition = '';
+        }, 300);
+    }, 300);
+    
+    // Update URL hash
+    window.location.hash = sectionId;
+    
+    // Update navigation active state
+    updateNavigation(sectionId);
+}
+
+// Update navigation active state
+function updateNavigation(sectionId) {
+    mainNavLinks.forEach(link => {
+        link.classList.remove('active');
+        
+        const linkTarget = link.getAttribute('href');
+        if (linkTarget === `#${sectionId}` || 
+            (sectionId === 'home' && linkTarget === 'home.html') ||
+            linkTarget.endsWith(`${sectionId}.html`)) {
+            link.classList.add('active');
+        }
+    });
+}
+
+// Highlight current page in navigation
+function highlightCurrentPage() {
+    const currentPage = window.location.pathname.split('/').pop() || 'home.html';
+    
+    mainNavLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        link.classList.remove('active');
+        
+        if (href === currentPage || 
+            (currentPage === '' && href === 'home.html') ||
+            (currentPage === 'index.html' && href === 'home.html')) {
+            link.classList.add('active');
+        }
+    });
+}
+
+// Update page title based on current page
+function updatePageTitle() {
+    const currentPage = window.location.pathname.split('/').pop() || 'home.html';
+    let title = 'Bistro Restaurant';
+    
+    // Set page specific titles
+    if (currentPage === 'menu.html') {
+        title = 'Menu - Bistro Restaurant';
+    } else if (currentPage === 'about.html') {
+        title = 'About Us - Bistro Restaurant';
+    } else if (currentPage === 'contact.html') {
+        title = 'Contact Us - Bistro Restaurant';
+    } else if (currentPage === 'orders.html') {
+        title = 'My Orders - Bistro Restaurant';
+    } else if (currentPage === 'profile.html') {
+        title = 'My Profile - Bistro Restaurant';
+    } else if (currentPage === 'admin.html') {
+        title = 'Admin Panel - Bistro Restaurant';
+    }
+    
+    // Update the page title
+    if (pageTitle) {
+        pageTitle.textContent = title;
+    }
+}
+
+// Format currency
+function formatCurrency(amount) {
+    return parseFloat(amount).toFixed(2);
 }
 
 // Format date
 function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleString();
+    const options = { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleString('en-US', options);
+}
+
+// Get user data from session storage
+function getCurrentUser() {
+    return JSON.parse(sessionStorage.getItem('user'));
+}
+
+// Check if user is authenticated
+function isAuthenticated() {
+    return !!getCurrentUser();
+}
+
+// Check if user has admin or staff role
+function hasAdminAccess() {
+    const user = getCurrentUser();
+    return user && (user.role === 'ADMIN' || user.role === 'STAFF');
+}
+
+// Generate user avatar element
+function generateUserAvatar(username) {
+    const container = document.createElement('div');
+    container.className = 'user-avatar';
+    
+    // Use first letter of username for avatar
+    const initial = username ? username.charAt(0).toUpperCase() : '';
+    
+    if (initial) {
+        container.textContent = initial;
+        
+        // Generate a consistent color based on username
+        const hash = username.split('').reduce((a, b) => {
+            a = ((a << 5) - a) + b.charCodeAt(0);
+            return a & a;
+        }, 0);
+        
+        const hue = Math.abs(hash % 360);
+        container.style.backgroundColor = `hsl(${hue}, 70%, 85%)`;
+        container.style.color = `hsl(${hue}, 70%, 30%)`;
+    } else {
+        // Fallback to icon
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-user';
+        container.appendChild(icon);
+    }
+    
+    return container;
+}
+
+// Update user avatar throughout the site
+function updateUserAvatar() {
+    const user = getCurrentUser();
+    if (!user) return;
+    
+    // Update avatars in header and profile
+    const avatarContainers = document.querySelectorAll('.user-avatar');
+    
+    avatarContainers.forEach(container => {
+        // Clear existing content
+        container.innerHTML = '';
+        
+        // Use first letter of username for avatar
+        const initial = user.username ? user.username.charAt(0).toUpperCase() : '';
+        
+        if (initial) {
+            container.textContent = initial;
+            
+            // Generate a consistent color based on username
+            const hash = user.username.split('').reduce((a, b) => {
+                a = ((a << 5) - a) + b.charCodeAt(0);
+                return a & a;
+            }, 0);
+            
+            const hue = Math.abs(hash % 360);
+            container.style.backgroundColor = `hsl(${hue}, 70%, 85%)`;
+            container.style.color = `hsl(${hue}, 70%, 30%)`;
+            
+            // Add role-based class for styling
+            if (user.role) {
+                container.classList.add(user.role.toLowerCase());
+            }
+        } else {
+            // Fallback to icon
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-user';
+            container.appendChild(icon);
+        }
+        
+        // Ensure all avatars link to profile
+        if (container.tagName !== 'A') {
+            // If not already a link, check if it's in a link
+            const parent = container.parentElement;
+            if (parent.tagName !== 'A') {
+                // Wrap in a link
+                const link = document.createElement('a');
+                link.href = 'profile.html';
+                link.className = container.className;
+                link.innerHTML = container.innerHTML;
+                
+                // Copy any inline styles
+                for (let i = 0; i < container.style.length; i++) {
+                    const prop = container.style[i];
+                    link.style[prop] = container.style[prop];
+                }
+                
+                // Replace with link
+                container.parentNode.replaceChild(link, container);
+            }
+        }
+    });
+    
+    // Update profile name if on profile page
+    const profileName = document.getElementById('profile-name');
+    if (profileName) {
+        const fullName = (user.firstName && user.lastName) ? 
+            `${user.firstName} ${user.lastName}` : 
+            user.username;
+        profileName.textContent = fullName;
+    }
+    
+    // Update profile role if on profile page
+    const profileRole = document.getElementById('profile-role');
+    if (profileRole && user.role) {
+        profileRole.textContent = user.role.charAt(0) + user.role.slice(1).toLowerCase();
+        profileRole.className = `user-role ${user.role.toLowerCase()}`;
+    }
 }

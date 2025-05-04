@@ -1,5 +1,6 @@
 package com.bistro.controller;
 
+import com.bistro.model.User;
 import com.bistro.service.MenuItemService;
 import com.bistro.service.OrderService;
 import com.bistro.service.UserService;
@@ -50,16 +51,16 @@ public class AdminController extends BaseController {
         }
         
         try {
-            switch (pathInfo) {
-                case "/dashboard":
-                    handleDashboard(request, response);
-                    break;
-                case "/users":
-                    handleGetUsers(request, response);
-                    break;
-                default:
-                    sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "Endpoint not found");
-                    break;
+            if (pathInfo.equals("/dashboard")) {
+                handleDashboard(request, response);
+            } else if (pathInfo.equals("/users")) {
+                handleGetUsers(request, response);
+            } else if (pathInfo.matches("/users/\\d+")) {
+                // Extract user ID from path
+                int userId = Integer.parseInt(pathInfo.substring(pathInfo.lastIndexOf('/') + 1));
+                handleGetUserById(request, response, userId);
+            } else {
+                sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "Endpoint not found");
             }
         } catch (Exception e) {
             sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error processing request: " + e.getMessage());
@@ -147,6 +148,24 @@ public class AdminController extends BaseController {
         sendJsonResponse(response, userService.getAllUsers());
     }
     
+    /**
+     * Handle get user by ID request.
+     *
+     * @param request the HTTP request
+     * @param response the HTTP response
+     * @param userId the ID of the user to retrieve
+     * @throws Exception if an error occurs
+     */
+    private void handleGetUserById(HttpServletRequest request, HttpServletResponse response, int userId) throws Exception {
+        var userOpt = userService.getUserById(userId);
+        
+        if (userOpt.isPresent()) {
+            sendJsonResponse(response, userOpt.get());
+        } else {
+            sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "User not found");
+        }
+    }
+    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Only admin can access admin endpoints
@@ -162,8 +181,54 @@ public class AdminController extends BaseController {
             return;
         }
         
-        // No POST endpoints implemented yet
-        sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "Endpoint not found");
+        try {
+            switch (pathInfo) {
+                case "/users":
+                    handleAddUser(request, response);
+                    break;
+                default:
+                    sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "Endpoint not found");
+                    break;
+            }
+        } catch (Exception e) {
+            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error processing request: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Handle add user request.
+     *
+     * @param request the HTTP request
+     * @param response the HTTP response
+     * @throws Exception if an error occurs
+     */
+    private void handleAddUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String requestBody = getRequestBody(request);
+        
+        // Log the request body for debugging (removing sensitive info)
+        String logBody = requestBody.replaceAll("\"password\":\"[^\"]*\"", "\"password\":\"[MASKED]\"");
+        System.out.println("Admin add user request body: " + logBody);
+        
+        com.bistro.model.User user = objectMapper.readValue(requestBody, com.bistro.model.User.class);
+        
+        // Ensure we have a password before registering
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            throw new Exception("Password is required");
+        }
+        
+        // Log the user object (without password)
+        System.out.println("Admin creating user: " + user.getUsername() + ", Email: " + user.getEmail() + ", Role: " + user.getRole());
+        
+        // Register the user
+        com.bistro.model.User registeredUser = userService.register(user);
+        
+        // Return success response
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("success", true);
+        responseMap.put("message", "User added successfully");
+        responseMap.put("user", registeredUser);
+        
+        sendJsonResponse(response, responseMap);
     }
     
     @Override
@@ -181,8 +246,107 @@ public class AdminController extends BaseController {
             return;
         }
         
-        // No PUT endpoints implemented yet
-        sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "Endpoint not found");
+        try {
+            if (pathInfo.matches("/users/\\d+")) {
+                // Extract user ID from path
+                int userId = Integer.parseInt(pathInfo.substring(pathInfo.lastIndexOf('/') + 1));
+                handleUpdateUser(request, response, userId);
+            } else if (pathInfo.matches("/users/\\d+/password")) {
+                // Extract user ID from path
+                int userId = Integer.parseInt(pathInfo.substring(pathInfo.indexOf("/users/") + 7, pathInfo.lastIndexOf('/')));
+                handleUpdateUserPassword(request, response, userId);
+            } else {
+                sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "Endpoint not found");
+            }
+        } catch (Exception e) {
+            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error processing request: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Handle update user request.
+     *
+     * @param request the HTTP request
+     * @param response the HTTP response
+     * @param userId the ID of the user to update
+     * @throws Exception if an error occurs
+     */
+    private void handleUpdateUser(HttpServletRequest request, HttpServletResponse response, int userId) throws Exception {
+        // First, check if user exists
+        var userOpt = userService.getUserById(userId);
+        
+        if (userOpt.isEmpty()) {
+            sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "User not found");
+            return;
+        }
+        
+        com.bistro.model.User existingUser = userOpt.get();
+        
+        // Read the updated user data from the request
+        String requestBody = getRequestBody(request);
+        com.bistro.model.User updatedUser = objectMapper.readValue(requestBody, com.bistro.model.User.class);
+        
+        // Set the ID to ensure we're updating the right user
+        updatedUser.setId(userId);
+        
+        // Preserve the password hash
+        updatedUser.setPasswordHash(existingUser.getPasswordHash());
+        
+        // Update user
+        com.bistro.model.User savedUser = userService.updateProfile(updatedUser);
+        
+        // Send response
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("success", true);
+        responseMap.put("message", "User updated successfully");
+        responseMap.put("user", savedUser);
+        
+        sendJsonResponse(response, responseMap);
+    }
+    
+    /**
+     * Handle update user password request.
+     *
+     * @param request the HTTP request
+     * @param response the HTTP response
+     * @param userId the ID of the user to update
+     * @throws Exception if an error occurs
+     */
+    private void handleUpdateUserPassword(HttpServletRequest request, HttpServletResponse response, int userId) throws Exception {
+        // First, check if user exists
+        var userOpt = userService.getUserById(userId);
+        
+        if (userOpt.isEmpty()) {
+            sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "User not found");
+            return;
+        }
+        
+        com.bistro.model.User user = userOpt.get();
+        
+        // Read the password data from the request
+        String requestBody = getRequestBody(request);
+        Map<String, String> passwordData = objectMapper.readValue(requestBody, Map.class);
+        
+        String newPassword = passwordData.get("newPassword");
+        
+        if (newPassword == null || newPassword.isEmpty()) {
+            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "New password is required");
+            return;
+        }
+        
+        // Admin can change password without old password verification
+        // We use a direct database update for this
+        boolean success = userService.setPassword(userId, newPassword);
+        
+        if (success) {
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("success", true);
+            responseMap.put("message", "Password updated successfully");
+            
+            sendJsonResponse(response, responseMap);
+        } else {
+            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Failed to update password");
+        }
     }
     
     @Override
@@ -200,8 +364,48 @@ public class AdminController extends BaseController {
             return;
         }
         
-        // No DELETE endpoints implemented yet
-        sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "Endpoint not found");
+        try {
+            if (pathInfo.matches("/users/\\d+")) {
+                // Extract user ID from path
+                int userId = Integer.parseInt(pathInfo.substring(pathInfo.lastIndexOf('/') + 1));
+                handleDeleteUser(request, response, userId);
+            } else {
+                sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "Endpoint not found");
+            }
+        } catch (Exception e) {
+            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error processing request: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Handle delete user request.
+     *
+     * @param request the HTTP request
+     * @param response the HTTP response
+     * @param userId the ID of the user to delete
+     * @throws Exception if an error occurs
+     */
+    private void handleDeleteUser(HttpServletRequest request, HttpServletResponse response, int userId) throws Exception {
+        // Get the current user making the request
+        User currentUser = getAuthenticatedUser(request);
+        
+        // Prevent deleting self
+        if (currentUser != null && currentUser.getId() == userId) {
+            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Cannot delete your own account");
+            return;
+        }
+        
+        boolean deleted = userService.deleteUser(userId);
+        
+        if (deleted) {
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("success", true);
+            responseMap.put("message", "User deleted successfully");
+            
+            sendJsonResponse(response, responseMap);
+        } else {
+            sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "User not found or could not be deleted");
+        }
     }
 
     @Override

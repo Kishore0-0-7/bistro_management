@@ -1,6 +1,8 @@
 package com.bistro.model;
 
 import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Model class representing a user in the system.
@@ -9,7 +11,13 @@ public class User {
     private int id;
     private String username;
     private String email;
+    
+    @JsonIgnore
     private String passwordHash;
+    
+    // Transient field to store password during registration
+    private transient String password;
+    
     private String role; // CUSTOMER, STAFF, ADMIN
     private String firstName;
     private String lastName;
@@ -74,12 +82,23 @@ public class User {
         this.email = email;
     }
 
+    @JsonIgnore
     public String getPasswordHash() {
         return passwordHash;
     }
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+    
+    // Getter and setter for password (only used during registration)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    public String getPassword() {
+        return password;
+    }
+    
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getRole() {

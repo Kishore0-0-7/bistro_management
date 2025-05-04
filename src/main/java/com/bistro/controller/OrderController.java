@@ -181,8 +181,8 @@ public class OrderController extends BaseController {
             if (orderObj instanceof Order) {
                 // Replace order with fixed version
                 Order order = (Order) orderObj;
-                
-                // Get the order's total amount directly from the database
+            
+            // Get the order's total amount directly from the database
                 BigDecimal correctAmount = getOrderTotalFromDatabase(order.getId());
                 
                 // Create a fixed order representation with correct amount
@@ -251,19 +251,19 @@ public class OrderController extends BaseController {
      */
     private BigDecimal getOrderTotalFromDatabase(int orderId) {
         // First check the database for an existing value
-        try (Connection conn = DatabaseConfig.getConnection();
+            try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement("SELECT total_amount FROM orders WHERE id = ?")) {
             stmt.setInt(1, orderId);
-            try (ResultSet rs = stmt.executeQuery()) {
+                try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     BigDecimal amount = rs.getBigDecimal("total_amount");
                     if (amount != null && amount.compareTo(BigDecimal.ZERO) > 0) {
                         logger.info("Using actual total amount {} from database for order ID {}", amount, orderId);
                         return amount;
                     }
+                    }
                 }
-            }
-        } catch (Exception e) {
+            } catch (Exception e) {
             logger.error("Error retrieving total amount from database for order ID {}: {}", orderId, e.getMessage());
         }
         
@@ -301,7 +301,7 @@ public class OrderController extends BaseController {
                 BigDecimal amount = rs.getBigDecimal("total_amount");
                 if (amount == null) {
                     amount = BigDecimal.ZERO;
-                }
+            }
                 orderAmounts.put(id, amount);
             }
             logger.info("Retrieved {} order totals from database", orderAmounts.size());
@@ -319,16 +319,16 @@ public class OrderController extends BaseController {
      * @return Map representing the order with the correct amount
      */
     private Map<String, Object> createOrderMapWithFixedTotal(Order order, BigDecimal correctAmount) {
-        Map<String, Object> orderMap = new HashMap<>();
-        orderMap.put("id", order.getId());
-        orderMap.put("userId", order.getUserId());
-        orderMap.put("status", order.getStatus());
-        
+                Map<String, Object> orderMap = new HashMap<>();
+                orderMap.put("id", order.getId());
+                orderMap.put("userId", order.getUserId());
+                orderMap.put("status", order.getStatus());
+                
         // First priority: Use correct amount from database if available and non-zero
         if (correctAmount != null && correctAmount.compareTo(BigDecimal.ZERO) > 0) {
             // Store as a double for consistent JSON serialization
-            double amount = correctAmount.doubleValue();
-            orderMap.put("totalAmount", amount);
+                    double amount = correctAmount.doubleValue();
+                    orderMap.put("totalAmount", amount);
             logger.info("Setting order ID {} totalAmount to fixed value from database: {}", order.getId(), amount);
         } 
         // Second priority: Use the order's original amount if not zero
@@ -345,18 +345,18 @@ public class OrderController extends BaseController {
         }
         // Last resort: use zero
         else {
-            orderMap.put("totalAmount", 0.0);
+                    orderMap.put("totalAmount", 0.0);
             logger.info("No valid totalAmount found for order ID {}, using zero", order.getId());
-        }
-        
-        orderMap.put("orderDate", order.getOrderDate());
-        orderMap.put("deliveryDate", order.getDeliveryDate());
-        orderMap.put("deliveryAddress", order.getDeliveryAddress());
-        orderMap.put("paymentMethod", order.getPaymentMethod());
-        orderMap.put("paymentStatus", order.getPaymentStatus());
-        orderMap.put("specialInstructions", order.getSpecialInstructions());
-        orderMap.put("orderItems", order.getOrderItems());
-        
+                }
+                
+                orderMap.put("orderDate", order.getOrderDate());
+                orderMap.put("deliveryDate", order.getDeliveryDate());
+                orderMap.put("deliveryAddress", order.getDeliveryAddress());
+                orderMap.put("paymentMethod", order.getPaymentMethod());
+                orderMap.put("paymentStatus", order.getPaymentStatus());
+                orderMap.put("specialInstructions", order.getSpecialInstructions());
+                orderMap.put("orderItems", order.getOrderItems());
+                
         return orderMap;
     }
     
@@ -463,7 +463,7 @@ public class OrderController extends BaseController {
                         
                         // Simply use the orderService's updateStatus method which preserves total amount
                         boolean statusUpdated = orderService.updateOrderStatus(id, status);
-                        
+                    
                         if (statusUpdated) {
                             // Get the updated order
                             Optional<Order> updatedOrderOpt = orderService.getOrderById(id);
@@ -488,13 +488,13 @@ public class OrderController extends BaseController {
                                     updatedOrder = orderService.updateOrder(fixOrder);
                                 }
                                 
-                                Map<String, Object> responseMap = new HashMap<>();
-                                responseMap.put("success", true);
-                                responseMap.put("message", "Order status updated successfully");
+                        Map<String, Object> responseMap = new HashMap<>();
+                        responseMap.put("success", true);
+                        responseMap.put("message", "Order status updated successfully");
                                 responseMap.put("order", updatedOrder);
-                                
-                                sendJsonResponse(response, responseMap);
-                            } else {
+                        
+                        sendJsonResponse(response, responseMap);
+                    } else {
                                 sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
                                                 "Order was updated but could not be retrieved");
                             }

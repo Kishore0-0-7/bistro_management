@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bistro Restaurant - Menu</title>
+    <title>Menu - Bistro Restaurant</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Add theme color for mobile browsers -->
@@ -28,7 +28,7 @@
                     <li><a href="about.html">About</a></li>
                     <li><a href="contact.html">Contact</a></li>
                     <li><a href="orders.html" class="hidden" id="orders-link">My Orders</a></li>
-                    <li><a href="admin.html" class="hidden" id="admin">Admin</a></li>
+                    <li><a href="admin.html" class="hidden" id="admin-link">Admin</a></li>
                 </ul>
             </nav>
             <div class="user-actions">
@@ -36,6 +36,9 @@
                 <button id="login-btn" class="auth-btn">Login</button>
                 <button id="register-btn" class="auth-btn">Register</button>
                 <div id="user-profile" class="hidden">
+                    <a href="profile.html" class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </a>
                     <span id="username-display"></span>
                     <button id="logout-btn">Logout</button>
                 </div>
@@ -47,14 +50,16 @@
     <section id="menu" class="section active">
         <div class="container">
             <h2>Our Menu</h2>
+            
             <div class="menu-filters">
                 <button class="filter-btn active" data-category="all">All</button>
-                <!-- Categories will be loaded dynamically -->
+                <button class="filter-btn" data-category="Pizza">Pizza</button>
+                <button class="filter-btn" data-category="Pasta">Pasta</button>
+                <button class="filter-btn" data-category="Salad">Salad</button>
+                <button class="filter-btn" data-category="Dessert">Dessert</button>
+                <button class="filter-btn" data-category="Beverage">Beverages</button>
             </div>
-            <div class="menu-search">
-                <input type="text" id="menu-search-input" placeholder="Search menu...">
-                <button id="menu-search-btn"><i class="fas fa-search"></i></button>
-            </div>
+            
             <div class="menu-grid" id="menu-items">
                 <!-- Menu items will be loaded dynamically -->
                 <div class="loading">Loading menu items...</div>
@@ -286,7 +291,7 @@
                 
                 // Show admin link if user is admin or staff
                 if (user.role === 'ADMIN' || user.role === 'STAFF') {
-                    const adminLink = document.getElementById('admin');
+                    const adminLink = document.getElementById('admin-link');
                     if (adminLink) {
                         adminLink.classList.remove('hidden');
                     }

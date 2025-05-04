@@ -1,188 +1,169 @@
-// Authentication script
+// Authentication Module
 
 // DOM Elements
-const loginBtn = document.getElementById('login-btn');
-const registerBtn = document.getElementById('register-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const userProfile = document.getElementById('user-profile');
-const usernameDisplay = document.getElementById('username-display');
-const loginModal = document.getElementById('login-modal');
-const registerModal = document.getElementById('register-modal');
-const loginForm = document.getElementById('login-form');
-const registerForm = document.getElementById('register-form');
-const showRegisterLink = document.getElementById('show-register');
-const showLoginLink = document.getElementById('show-login');
-const adminNavLink = document.getElementById('admin');
-const ordersNavLink = document.getElementById('orders-link');
+let loginForm, registerForm, loginModal, registerModal;
+let loginBtn, registerBtn, logoutBtn, userProfile, usernameDisplay, userAvatar;
+let ordersLink, adminLink;
+let showRegisterLink, showLoginLink;
 
-// Initialize authentication
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Auth script initializing...');
+// Initialize auth module
+document.addEventListener('DOMContentLoaded', function() {
+    // Get DOM elements
+    initAuthElements();
     
     // Set up event listeners
-    setupAuthEventListeners();
+    setupAuthListeners();
     
-    // Check if user is already logged in
-    checkAuthentication();
+    // Check authentication status
+    checkAuth();
 });
 
-// Set up authentication event listeners
-function setupAuthEventListeners() {
-    console.log('Setting up auth event listeners...');
+// Initialize auth elements
+function initAuthElements() {
+    // Forms and modals
+    loginForm = document.getElementById('login-form');
+    registerForm = document.getElementById('register-form');
+    loginModal = document.getElementById('login-modal');
+    registerModal = document.getElementById('register-modal');
+    
+    // Buttons and displays
+    loginBtn = document.getElementById('login-btn');
+    registerBtn = document.getElementById('register-btn');
+    logoutBtn = document.getElementById('logout-btn');
+    userProfile = document.getElementById('user-profile');
+    usernameDisplay = document.getElementById('username-display');
+    userAvatar = document.querySelector('.user-avatar');
+    
+    // Navigation links
+    ordersLink = document.getElementById('orders-link');
+    adminLink = document.getElementById('admin-link');
+    
+    // Modal links
+    showRegisterLink = document.getElementById('show-register');
+    showLoginLink = document.getElementById('show-login');
+}
+
+// Set up auth event listeners
+function setupAuthListeners() {
+    // Login form submission
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            login();
+        });
+    }
+    
+    // Register form submission
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            register();
+        });
+    }
     
     // Login button
     if (loginBtn) {
-        loginBtn.addEventListener('click', () => {
-            showModal('login-modal');
+        loginBtn.addEventListener('click', function() {
+            openModal(loginModal);
         });
     }
     
     // Register button
     if (registerBtn) {
-        registerBtn.addEventListener('click', () => {
-            showModal('register-modal');
+        registerBtn.addEventListener('click', function() {
+            openModal(registerModal);
         });
     }
     
     // Logout button
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
+        logoutBtn.addEventListener('click', function() {
             logout();
         });
     }
     
     // Show register link
     if (showRegisterLink) {
-        showRegisterLink.addEventListener('click', (e) => {
+        showRegisterLink.addEventListener('click', function(e) {
             e.preventDefault();
-            closeAllModals();
-            showModal('register-modal');
+            closeModal(loginModal);
+            openModal(registerModal);
         });
     }
     
     // Show login link
     if (showLoginLink) {
-        showLoginLink.addEventListener('click', (e) => {
+        showLoginLink.addEventListener('click', function(e) {
             e.preventDefault();
-            closeAllModals();
-            showModal('login-modal');
+            closeModal(registerModal);
+            openModal(loginModal);
         });
     }
     
-    // Login form submission
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const username = document.getElementById('login-username').value;
-            const password = document.getElementById('login-password').value;
-            
-            login(username, password);
+    // Close modals
+    document.querySelectorAll('.close-modal').forEach(function(closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            closeModal(modal);
         });
-    }
+    });
     
-    // Register form submission
-    if (registerForm) {
-        registerForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const username = document.getElementById('register-username').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const confirmPassword = document.getElementById('register-confirm-password').value;
-            
-            if (password !== confirmPassword) {
-                alert('Passwords do not match');
-                return;
-            }
-            
-            register(username, email, password);
-        });
-    }
+    // Close modal on outside click
+    window.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+            closeModal(e.target);
+        }
+    });
 }
 
-// Check if user is authenticated
-function checkAuthentication() {
-    console.log('Checking authentication...');
-    
-    // Check if we just logged out
-    const loggedOut = sessionStorage.getItem('logged_out');
-    if (loggedOut === 'true') {
-        console.log('User recently logged out, skipping auto authentication');
-        sessionStorage.removeItem('logged_out'); // Clear the flag
-        showUnauthenticatedUI();
-        return;
-    }
-    
-    // Check if a logout was performed recently (within 5 seconds)
-    const logoutTimestamp = localStorage.getItem('logout_timestamp');
-    if (logoutTimestamp) {
-        const logoutTime = parseInt(logoutTimestamp, 10);
-        const currentTime = Date.now();
-        const timeSinceLogout = currentTime - logoutTime;
-        
-        if (timeSinceLogout < 5000) { // 5 seconds
-            console.log('Recent logout detected, skipping auto authentication');
-            showUnauthenticatedUI();
-            return;
-        } else {
-            // Clear old logout timestamp
-            localStorage.removeItem('logout_timestamp');
-        }
-    }
-    
-    // Check for user in session storage first
+// Check authentication status
+function checkAuth() {
     const user = JSON.parse(sessionStorage.getItem('user'));
     
     if (user) {
-        console.log('User found in session storage:', user);
-        showAuthenticatedUI(user);
+        // User is logged in
+        if (loginBtn) loginBtn.classList.add('hidden');
+        if (registerBtn) registerBtn.classList.add('hidden');
+        if (userProfile) userProfile.classList.remove('hidden');
+        
+        // Update user display
+        if (usernameDisplay) {
+            usernameDisplay.textContent = user.username;
+        }
+        
+        // Initialize avatar display with user's first initial
+        updateUserAvatar();
+        
+        // Show navigation links based on role
+        if (ordersLink) ordersLink.classList.remove('hidden');
+        
+        if (user.role === 'ADMIN' || user.role === 'STAFF') {
+            if (adminLink) adminLink.classList.remove('hidden');
+        }
     } else {
-        console.log('No user found in session storage, checking server...');
-        // Try to get user from server session
-        fetch('api/auth/check')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to check authentication');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.authenticated) {
-                    // Double check if a logout was requested
-                    if (sessionStorage.getItem('logged_out') === 'true') {
-                        console.log('Logout flag detected during auth check, ignoring server auth');
-                        sessionStorage.removeItem('logged_out');
-                        showUnauthenticatedUI();
-                        return;
-                    }
-                    
-                    console.log('User authenticated by server:', data.user);
-                    // Store user in session storage
-                    sessionStorage.setItem('user', JSON.stringify(data.user));
-                    showAuthenticatedUI(data.user);
-                } else {
-                    console.log('User not authenticated by server');
-                    showUnauthenticatedUI();
-                }
-            })
-            .catch(error => {
-                console.error('Error checking authentication:', error);
-                showUnauthenticatedUI();
-            });
+        // User is not logged in
+        if (loginBtn) loginBtn.classList.remove('hidden');
+        if (registerBtn) registerBtn.classList.remove('hidden');
+        if (userProfile) userProfile.classList.add('hidden');
+        
+        // Hide navigation links
+        if (ordersLink) ordersLink.classList.add('hidden');
+        if (adminLink) adminLink.classList.add('hidden');
     }
 }
 
 // Login function
-function login(username, password) {
-    console.log('Attempting login for user:', username);
+function login() {
+    // Get form data
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
     
-    // Clear any logged_out flag
-    sessionStorage.removeItem('logged_out');
+    // Disable submit button
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in...';
     
-    // Store the username in a cookie that will persist even if sessionStorage is cleared
-    document.cookie = `bistro_username=${username}; path=/; max-age=86400`;
-    
+    // Login request
     fetch('api/auth/login', {
         method: 'POST',
         headers: {
@@ -195,181 +176,71 @@ function login(username, password) {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Login failed');
+            if(response.status === 401) {
+                throw new Error('Invalid username or password');
+            } else {
+                throw new Error('Login failed. Please try again.');
+            }
         }
         return response.json();
     })
     .then(data => {
-        console.log('Login successful:', data);
-        // Store user in session storage
+        // Store user data in session storage
         sessionStorage.setItem('user', JSON.stringify(data.user));
         
-        // Also store username separately for easier access
-        sessionStorage.setItem('username', username);
+        // Close modal
+        closeModal(loginModal);
         
-        // Close login modal
-        closeAllModals();
+        // Update UI
+        checkAuth();
         
-        // Show authenticated UI
-        showAuthenticatedUI(data.user);
+        // Update user avatar
+        updateUserAvatar();
         
-        // Sync cart with server to associate items with user
-        syncCartWithServer();
+        // Reset form
+        loginForm.reset();
         
-        // Show success message
-        alert('Login successful!');
-    })
-    .catch(error => {
-        console.error('Error during login:', error);
+        // Show success notification
+        showNotification('Login Successful', 'Welcome back, ' + data.user.username + '!', 'success');
         
-        // For demonstration, simulate login if API fails
-        if (username === 'admin' && password === 'admin123') {
-            const user = {
-                id: 1,
-                username: 'admin',
-                email: 'admin@bistro.com',
-                role: 'ADMIN',
-                firstName: 'Admin',
-                lastName: 'User'
-            };
-            
-            console.log('Demo login as admin');
-            // Clear logged_out flag
-            sessionStorage.removeItem('logged_out');
-            
-            // Store user in session storage
-            sessionStorage.setItem('user', JSON.stringify(user));
-            sessionStorage.setItem('username', username);
-            
-            // Close login modal
-            closeAllModals();
-            
-            // Show authenticated UI
-            showAuthenticatedUI(user);
-            
-            // Show success message
-            alert('Login successful! (Demo mode)');
-        } else if (username === 'staff' && password === 'staff123') {
-            const user = {
-                id: 2,
-                username: 'staff',
-                email: 'staff@bistro.com',
-                role: 'STAFF',
-                firstName: 'Staff',
-                lastName: 'User'
-            };
-            
-            console.log('Demo login as staff');
-            // Clear logged_out flag
-            sessionStorage.removeItem('logged_out');
-            
-            // Store user in session storage
-            sessionStorage.setItem('user', JSON.stringify(user));
-            sessionStorage.setItem('username', username);
-            
-            // Close login modal
-            closeAllModals();
-            
-            // Show authenticated UI
-            showAuthenticatedUI(user);
-            
-            // Show success message
-            alert('Login successful! (Demo mode)');
-        } else {
-            alert('Invalid username or password');
-        }
-    });
-}
-
-// Sync cart with server
-function syncCartWithServer() {
-    console.log('Syncing cart with server after login');
-    
-    // First, ensure credentials are included
-    const credentials = {
-        username: sessionStorage.getItem('username')
-    };
-    
-    // First, ensure session has the user ID association by making a simple GET request
-    fetch('api/cart-service', {
-        credentials: 'include' // Ensure cookies are sent with the request
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to initialize cart session');
-        }
-        return response.json();
-    })
-    .then(initialData => {
-        console.log('Initial cart session established:', initialData);
-        
-        // Check for pending cart item
-        const pendingItem = sessionStorage.getItem('pendingCartItem');
-        if (pendingItem) {
-            console.log('Found pending cart item to add after login');
-            const item = JSON.parse(pendingItem);
-            
-            // Create cart item payload
-            const cartItem = {
-                menuItemId: item.id,
-                quantity: 1
-            };
-            
-            // Add item to cart
-            return fetch('api/cart-service', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(cartItem)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Added pending item to cart:', data);
-                // Clear pending item
-                sessionStorage.removeItem('pendingCartItem');
-                return data;
-            });
-        }
-        return initialData;
-    })
-    .then(data => {
-        // Explicitly sync cart with user account using PUT /sync endpoint
-        if (data.items && data.items.length > 0) {
-            console.log('Existing cart found, syncing with user account');
-            // Force a sync to associate with user
-            return fetch('api/cart-service/sync', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data.items)
-            });
-        }
-    })
-    .then(response => {
-        if (response && !response.ok) {
-            throw new Error('Failed to sync cart with server');
-        }
-        if (response) return response.json();
-        return null;
-    })
-    .then(() => {
-        console.log('Cart synced successfully');
-        // Update cart count
-        if (typeof updateCartCount === 'function') {
-            updateCartCount();
+        // Refresh page if needed
+        if (window.location.pathname.includes('profile.html') || 
+            window.location.pathname.includes('orders.html') ||
+            (window.location.pathname.includes('admin.html') && (data.user.role === 'ADMIN' || data.user.role === 'STAFF'))) {
+            window.location.reload();
         }
     })
     .catch(error => {
-        console.error('Error syncing cart with server:', error);
+        console.error('Login error:', error);
+        showNotification('Login Failed', error.message, 'error');
+    })
+    .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Login';
     });
 }
 
 // Register function
-function register(username, email, password) {
-    console.log('Attempting registration for user:', username);
+function register() {
+    // Get form data
+    const username = document.getElementById('register-username').value;
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    const confirmPassword = document.getElementById('register-confirm-password').value;
     
+    // Validate passwords
+    if (password !== confirmPassword) {
+        showNotification('Registration Error', 'Passwords do not match', 'error');
+        return;
+    }
+    
+    // Disable submit button
+    const submitBtn = registerForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Registering...';
+    
+    // Register request
     fetch('api/auth/register', {
         method: 'POST',
         headers: {
@@ -378,218 +249,167 @@ function register(username, email, password) {
         body: JSON.stringify({
             username: username,
             email: email,
-            password: password
+            password: password  // Using 'password' field as expected by the backend
         })
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Registration failed');
+            if (response.headers.get('Content-Type')?.includes('application/json')) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Registration failed');
+                });
+            } else {
+                throw new Error('Registration failed: ' + response.status);
+            }
         }
         return response.json();
     })
     .then(data => {
-        console.log('Registration successful:', data);
-        // Close register modal
-        closeAllModals();
+        // Close modal
+        closeModal(registerModal);
         
-        // Show success message
-        alert('Registration successful! Please login.');
+        // Show success notification
+        showNotification('Registration Successful', 'Your account has been created successfully. You can now log in.', 'success');
         
-        // Show login modal
-        showModal('login-modal');
+        // Reset form
+        registerForm.reset();
+        
+        // Open login modal
+        setTimeout(() => {
+            openModal(loginModal);
+        }, 1500);
     })
     .catch(error => {
-        console.error('Error during registration:', error);
-        
-        // For demonstration, simulate registration if API fails
-        closeAllModals();
-        alert('Registration successful! Please login. (Demo mode)');
-        showModal('login-modal');
+        console.error('Registration error:', error);
+        showNotification('Registration Failed', error.message, 'error');
+    })
+    .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Register';
     });
 }
 
 // Logout function
 function logout() {
-    console.log('Logging out user');
-    
-    // Prevent auto-login on page reload
-    localStorage.setItem('logout_timestamp', Date.now().toString());
-    
-    // Set logged_out flag to prevent auto re-login
-    sessionStorage.setItem('logged_out', 'true');
-    
-    // Clear the local session storage 
+    // Clear session storage
     sessionStorage.removeItem('user');
-    sessionStorage.removeItem('username');
     
-    // Clear the bistro_username cookie that might be causing auto-login
-    document.cookie = "bistro_username=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    // Update UI
+    checkAuth();
     
-    // Clear any other cookies that might be related to authentication
-    document.cookie = "JSESSIONID=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    // Show notification
+    showNotification('Logout Successful', 'You have been logged out successfully', 'info');
     
-    // Log all cookies for debugging
-    console.log('Cookies after clearing:', document.cookie);
-    
-    // Show unauthenticated UI immediately
-    showUnauthenticatedUI();
-        
-    // Now try to clear the server-side session
-    fetch('api/auth/logout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include' // Include cookies for proper session handling
-    })
-    .then(response => {
-        console.log('Logout response received, status:', response.status);
-        
-        // Handle the response - but we've already cleared local storage
-        if (!response.ok) {
-            console.warn('Server-side logout failed, but local session was cleared');
-            
-            // Force redirect to home page with cache-busting parameter
-            setTimeout(function() {
-                window.location.href = 'index.html?nocache=' + new Date().getTime();
-            }, 500);
-            return null;
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data) {
-            console.log('Logout successful, response data:', data);
-        }
-        
-        // Force redirect to home page with cache-busting parameter
-        setTimeout(function() {
-            window.location.href = 'index.html?nocache=' + new Date().getTime();
-        }, 500);
-    })
-    .catch(error => {
-        console.error('Error during logout:', error);
-        
-        // Force redirect to home page with cache-busting parameter
-        setTimeout(function() {
-            window.location.href = 'index.html?nocache=' + new Date().getTime();
-        }, 500);
-    });
-}
-
-// Show authenticated UI
-function showAuthenticatedUI(user) {
-    console.log('Showing authenticated UI for user:', user);
-    
-    if (!userProfile || !usernameDisplay || !loginBtn || !registerBtn || !logoutBtn) {
-        console.error('Required DOM elements for auth UI not found');
-        return;
-    }
-    
-    // Hide login and register buttons
-    loginBtn.classList.add('hidden');
-    registerBtn.classList.add('hidden');
-    
-    // Show user profile
-    userProfile.classList.remove('hidden');
-    
-    // Set username
-    usernameDisplay.textContent = user.username;
-    
-    // Show orders link for all authenticated users
-    if (ordersNavLink) {
-        ordersNavLink.classList.remove('hidden');
-    } else {
-        console.error('Orders nav link element not found');
-    }
-    
-    // Show admin link if user is admin or staff
-    if (adminNavLink) {
-        if (user.role === 'ADMIN' || user.role === 'STAFF') {
-            console.log('Showing admin link for role:', user.role);
-            adminNavLink.classList.remove('hidden');
-        } else {
-            adminNavLink.classList.add('hidden');
-        }
-    } else {
-        console.error('Admin nav link element not found');
-    }
-}
-
-// Show unauthenticated UI
-function showUnauthenticatedUI() {
-    console.log('Showing unauthenticated UI');
-    
-    if (!userProfile || !loginBtn || !registerBtn || !logoutBtn) {
-        console.error('Required DOM elements for auth UI not found');
-        return;
-    }
-    
-    // Show login and register buttons
-    loginBtn.classList.remove('hidden');
-    registerBtn.classList.remove('hidden');
-    
-    // Hide user profile
-    userProfile.classList.add('hidden');
-    
-    // Hide orders link
-    if (ordersNavLink) {
-        ordersNavLink.classList.add('hidden');
-    } else {
-        console.error('Orders nav link element not found');
-    }
-    
-    // Hide admin link
-    if (adminNavLink) {
-        adminNavLink.classList.add('hidden');
-    } else {
-        console.error('Admin nav link element not found');
-    }
-    
-    // Check if current page is restricted
-    const currentPage = window.location.pathname.split('/').pop();
-    if (currentPage === 'orders.html' || currentPage === 'admin.html') {
-        // Redirect to home page if on restricted page
+    // Redirect to home if on protected page
+    if (window.location.pathname.includes('profile.html') || 
+        window.location.pathname.includes('orders.html') ||
+        window.location.pathname.includes('admin.html')) {
         window.location.href = 'home.html';
     }
 }
 
-// Show modal
-function showModal(modalId) {
-    const modal = document.getElementById(modalId);
+// Open modal
+function openModal(modal) {
     if (modal) {
         modal.style.display = 'block';
-    } else {
-        console.error(`Modal not found: ${modalId}`);
     }
 }
 
-// Close all modals
-function closeAllModals() {
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
+// Close modal
+function closeModal(modal) {
+    if (modal) {
         modal.style.display = 'none';
-    });
+    }
 }
 
-// Show section (helper function)
-function showSection(sectionId) {
-    console.log('Auth showSection called for:', sectionId);
+// Show notification
+function showNotification(title, message, type = 'info') {
+    // Create notification container if it doesn't exist
+    let notificationContainer = document.querySelector('.notification-container');
+    if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.className = 'notification-container';
+        document.body.appendChild(notificationContainer);
+    }
     
-    // Use the global showSection function if available
-    if (typeof window.showSection === 'function' && window.showSection !== showSection) {
-        window.showSection(sectionId);
-    } else {
-        console.error('Global showSection function not available, using fallback');
-        // Fallback: manually show section
-        const sections = document.querySelectorAll('.section');
-        sections.forEach(section => {
-            section.classList.remove('active');
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    // Create notification content
+    notification.innerHTML = `
+        <div class="notification-header">
+            <h3>${title}</h3>
+            <span class="notification-close">&times;</span>
+        </div>
+        <div class="notification-body">
+            <p>${message}</p>
+        </div>
+    `;
+    
+    // Add to container
+    notificationContainer.appendChild(notification);
+    
+    // Add close button functionality
+    const closeBtn = notification.querySelector('.notification-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            notification.remove();
         });
-        
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.classList.add('active');
+    }
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
         }
+    }, 5000);
+}
+
+// Update user avatar display
+function updateUserAvatar() {
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if (!user) return;
+    
+    // Get all user avatar elements
+    const avatars = document.querySelectorAll('.user-avatar');
+    
+    // Exit if no avatars found
+    if (!avatars || avatars.length === 0) return;
+    
+    // Use first letter of username for avatar
+    const initial = user.username ? user.username.charAt(0).toUpperCase() : '';
+    
+    if (initial) {
+        // Get role-based class
+        const roleClass = user.role ? user.role.toLowerCase() : 'customer';
+        
+        // Update all avatars in the document
+        avatars.forEach(avatar => {
+            // Clear existing content
+            avatar.innerHTML = '';
+            
+            // Remove any existing role classes
+            avatar.classList.remove('admin', 'staff', 'customer');
+            
+            // Add role-based class
+            avatar.classList.add(roleClass);
+            
+            // Create text node for the initial
+            const textNode = document.createTextNode(initial);
+            avatar.appendChild(textNode);
+        });
+    } else {
+        // Fallback to icon
+        avatars.forEach(avatar => {
+            avatar.innerHTML = '<i class="fas fa-user"></i>';
+            
+            // Remove any existing role classes
+            avatar.classList.remove('admin', 'staff', 'customer');
+            
+            // Add default class
+            avatar.classList.add('customer');
+        });
     }
 }

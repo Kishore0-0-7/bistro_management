@@ -122,63 +122,130 @@ nav ul li a:hover, nav ul li a.active {
 .user-actions {
     display: flex;
     align-items: center;
+    gap: 15px;
 }
 
-.user-actions button {
-    margin-left: 10px;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-
-#cart-btn {
-    background-color: var(--secondary-color);
-    color: white;
-    display: inline-flex;
+.user-actions #cart-btn {
+    position: relative;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 15px;
+    background-color: transparent;
+    color: #333;
     border: none;
-    border-radius: 5px;
+    font-size: 1.1rem;
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
     text-decoration: none;
 }
 
-#cart-btn:hover {
-    background-color: #3dbeb5;
+.user-actions #cart-btn i {
+    font-size: 1.25rem;
+}
+
+.user-actions #cart-btn #cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #ff6b6b;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
 }
 
 .auth-btn {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: transparent;
+    border: 1px solid #ff6b6b;
+    color: #ff6b6b;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .auth-btn:hover {
-    background-color: #e05c5c;
+    background-color: #ff6b6b;
+    color: white;
 }
 
 #user-profile {
     display: flex;
     align-items: center;
-}
-
-#username-display {
-    margin-right: 10px;
-    font-weight: 500;
+    gap: 10px;
 }
 
 #logout-btn {
-    background-color: var(--danger-color);
-    color: white;
+    background-color: #f0f0f0;
+    border: none;
+    color: #666;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 #logout-btn:hover {
-    background-color: #e05c5c;
+    background-color: #ff6b6b;
+    color: white;
+}
+
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.user-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+#username-display {
+    font-weight: 500;
+    color: #333;
+    margin-right: 5px;
+}
+
+/* User avatar colors based on role */
+.user-avatar.admin {
+    background-color: #ffe0e0;
+    color: #ff6b6b;
+}
+
+.user-avatar.staff {
+    background-color: #e0f0ff;
+    color: #4d94ff;
+}
+
+.user-avatar.customer {
+    background-color: #e0ffe0;
+    color: #4dbb4d;
+}
+
+/* Mobile-friendly user profile */
+@media (max-width: 768px) {
+    .user-actions {
+        gap: 10px;
+    }
+    
+    #username-display {
+        display: none;
+    }
 }
 
 /* Mobile Menu Toggle */
@@ -1664,4 +1731,207 @@ footer {
 #special-instructions {
     resize: vertical;
     min-height: 80px;
+}
+
+/* Profile Page Styles */
+.profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 20px;
+    overflow: hidden;
+    border: 3px solid #ff6b6b;
+}
+
+.profile-avatar i {
+    font-size: 50px;
+    color: #ff6b6b;
+}
+
+.profile-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 25px;
+}
+
+.profile-tabs .tab-btn {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: #777;
+    position: relative;
+}
+
+.profile-tabs .tab-btn.active {
+    color: #ff6b6b;
+}
+
+.profile-tabs .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #ff6b6b;
+}
+
+.tab-content {
+    display: none;
+    padding: 15px 0;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.form-note {
+    color: #777;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+/* Responsive Profile Styles */
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .profile-avatar {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .profile-tabs {
+        flex-direction: column;
+        border-bottom: none;
+    }
+    
+    .profile-tabs .tab-btn {
+        width: 100%;
+        text-align: left;
+        padding: 12px 15px;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .profile-tabs .tab-btn.active::after {
+        display: none;
+    }
+    
+    .profile-tabs .tab-btn.active {
+        background-color: #fff0f0;
+        border-left: 3px solid #ff6b6b;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Header User Profile */
+.user-actions #user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    border: 2px solid #ff6b6b;
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.user-avatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.user-avatar i {
+    font-size: 16px;
+    color: #ff6b6b;
+}
+
+.user-avatar.admin {
+    border-color: #ff6b6b;
+}
+
+.user-avatar.staff {
+    border-color: #118ab2;
+}
+
+.user-avatar.customer {
+    border-color: #4ecdc4;
+}
+
+#logout-btn {
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 14px;
+}
+
+#logout-btn:hover {
+    background-color: #e05c5c;
+}
+
+#username-display {
+    margin: 0 5px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* Mobile Header Adjustments */
+@media (max-width: 768px) {
+    .user-actions #user-profile {
+        gap: 5px;
+    }
+    
+    .user-avatar {
+        width: 28px;
+        height: 28px;
+    }
+    
+    #username-display {
+        max-width: 60px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }

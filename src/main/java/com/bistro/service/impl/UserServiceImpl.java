@@ -36,8 +36,14 @@ public class UserServiceImpl implements UserService {
             throw new Exception("Email already exists");
         }
         
+        // Check if a password is provided
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            logger.warn("Registration failed: Password is required");
+            throw new Exception("Password is required");
+        }
+        
         // Hash the password
-        String hashedPassword = BCrypt.hashpw(user.getPasswordHash(), BCrypt.gensalt());
+        String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
         user.setPasswordHash(hashedPassword);
         
         // Set default role if not provided
@@ -164,6 +170,32 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
+    public boolean setPassword(int userId, String newPassword) throws Exception {
+        // Get existing user
+        Optional<User> userOpt = userDAO.findById(userId);
+        
+        if (userOpt.isEmpty()) {
+            logger.warn("Set password failed: User with ID {} not found", userId);
+            throw new Exception("User not found");
+        }
+        
+        User user = userOpt.get();
+        
+        // Hash the new password
+        String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+        user.setPasswordHash(hashedPassword);
+        
+        // Update the timestamp
+        user.setUpdatedAt(new Date());
+        
+        // Update the user
+        userDAO.update(user);
+        logger.info("Password set by admin for user: {}", user.getUsername());
+        
+        return true;
+    }
+    
+    @Override
     public List<User> getAllUsers() throws Exception {
         logger.debug("Getting all users");
         return userDAO.findAll();
@@ -181,5 +213,36 @@ public class UserServiceImpl implements UserService {
         boolean available = !userDAO.existsByEmail(email);
         logger.debug("Email {} availability check: {}", email, available);
         return available;
+    }
+    
+    @Override
+    public boolean deleteUser(int userId) throws Exception {
+        logger.debug("Deleting user with ID: {}", userId);
+        
+        // First check if the user exists
+        Optional<User> userOpt = userDAO.findById(userId);
+        if (userOpt.isEmpty()) {
+            logger.warn("Delete user failed: User with ID {} not found", userId);
+            return false;
+        }
+        
+        User user = userOpt.get();
+        
+        // Don't delete users with ADMIN role for safety
+        if ("ADMIN".equals(user.getRole())) {
+            logger.warn("Delete user failed: Cannot delete user with ADMIN role, ID: {}", userId);
+            throw new Exception("Cannot delete users with ADMIN role");
+        }
+        
+        // Delete the user
+        boolean deleted = userDAO.delete(userId);
+        
+        if (deleted) {
+            logger.info("User with ID {} deleted successfully", userId);
+        } else {
+            logger.error("Failed to delete user with ID {}", userId);
+        }
+        
+        return deleted;
     }
 }

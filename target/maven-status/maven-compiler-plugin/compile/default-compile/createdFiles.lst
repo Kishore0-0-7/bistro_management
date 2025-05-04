@@ -27,6 +27,7 @@ com\bistro\servlet\CartServlet.class
 com\bistro\dao\MenuItemDAO.class
 com\bistro\util\CORSFilter.class
 com\bistro\model\Order.class
+com\bistro\controller\UserController.class
 com\bistro\model\CartItem.class
 com\bistro\dao\UserDAO.class
 com\bistro\service\impl\MenuItemServiceImpl.class

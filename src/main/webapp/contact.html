@@ -28,14 +28,17 @@
                     <li><a href="about.html">About</a></li>
                     <li><a href="contact.html" class="active">Contact</a></li>
                     <li><a href="orders.html" class="hidden" id="orders-link">My Orders</a></li>
-                    <li><a href="admin.html" class="hidden" id="admin">Admin</a></li>
+                    <li><a href="admin.html" class="hidden" id="admin-link">Admin</a></li>
                 </ul>
             </nav>
             <div class="user-actions">
-                <button id="cart-btn"><i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span></button>
+                <a href="cart.html" id="cart-btn"><i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span></a>
                 <button id="login-btn" class="auth-btn">Login</button>
                 <button id="register-btn" class="auth-btn">Register</button>
                 <div id="user-profile" class="hidden">
+                    <a href="profile.html" class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </a>
                     <span id="username-display"></span>
                     <button id="logout-btn">Logout</button>
                 </div>
@@ -255,7 +258,7 @@
                 
                 // Show admin link if user is admin or staff
                 if (user.role === 'ADMIN' || user.role === 'STAFF') {
-                    const adminLink = document.getElementById('admin');
+                    const adminLink = document.getElementById('admin-link');
                     if (adminLink) {
                         adminLink.classList.remove('hidden');
                     }

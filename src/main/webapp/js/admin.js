@@ -826,26 +826,45 @@ function showEditUserForm(user) {
     document.getElementById('edit-user-role').value = user.role;
     document.getElementById('edit-user-phone').value = user.phone || '';
     document.getElementById('edit-user-address').value = user.address || '';
+    
+    // Clear password fields if they exist
+    const passwordField = document.getElementById('edit-user-password');
+    if (passwordField) passwordField.value = '';
+    
+    const confirmPasswordField = document.getElementById('edit-user-confirm-password');
+    if (confirmPasswordField) confirmPasswordField.value = '';
 }
 
 // Update user
 function updateUser(formData) {
     const userId = formData.get('id');
     
+    // Check if password fields are provided and match
+    const password = formData.get('password');
+    const confirmPassword = formData.get('confirmPassword');
+    
+    if (password && confirmPassword && password !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+    }
+    
+    const userData = {
+        username: formData.get('username'),
+        email: formData.get('email'),
+        firstName: formData.get('firstName'),
+        lastName: formData.get('lastName'),
+        role: formData.get('role'),
+        phone: formData.get('phone'),
+        address: formData.get('address')
+    };
+    
+    // Update user profile
     fetch(`api/admin/users/${userId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            username: formData.get('username'),
-            email: formData.get('email'),
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            role: formData.get('role'),
-            phone: formData.get('phone'),
-            address: formData.get('address')
-        })
+        body: JSON.stringify(userData)
     })
     .then(response => {
         if (!response.ok) {
@@ -854,12 +873,38 @@ function updateUser(formData) {
         return response.json();
     })
     .then(data => {
+        // If password was provided, also update password
+        if (password && password.trim() !== '') {
+            return changeUserPassword(userId, password);
+        }
+        return data;
+    })
+    .then(data => {
         alert('User updated successfully');
         closeAllModals();
         loadUserManagementContent();
     })
     .catch(error => {
         alert(`Error updating user: ${error.message}`);
+    });
+}
+
+// Change user password (admin function)
+function changeUserPassword(userId, newPassword) {
+    return fetch(`api/admin/users/${userId}/password`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            newPassword: newPassword
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to update password');
+        }
+        return response.json();
     });
 }
 
@@ -1998,29 +2043,61 @@ function showAddUserForm() {
 
 // Add user
 function addUser(formData) {
+    // Show loading state
+    const submitButton = document.querySelector('#add-user-form button[type="submit"]');
+    if (submitButton) {
+        submitButton.innerHTML = 'Adding User...';
+        submitButton.disabled = true;
+    }
+    
+    // Check if passwords match if there's a confirm password field
+    const password = formData.get('password');
+    const confirmPassword = formData.get('confirmPassword');
+    
+    if (confirmPassword && password !== confirmPassword) {
+        alert('Passwords do not match');
+        if (submitButton) {
+            submitButton.innerHTML = 'Add User';
+            submitButton.disabled = false;
+        }
+        return;
+    }
+    
+    // Create the user object with the same structure as the auth.js register function
+    const userData = {
+        username: formData.get('username'),
+        email: formData.get('email'),
+        password: password,
+        role: formData.get('role') || 'CUSTOMER',
+        firstName: formData.get('firstName'),
+        lastName: formData.get('lastName'),
+        phone: formData.get('phone'),
+        address: formData.get('address')
+    };
+    
     fetch('api/admin/users', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            username: formData.get('username'),
-            email: formData.get('email'),
-            password: formData.get('password'),
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            role: formData.get('role'),
-            phone: formData.get('phone'),
-            address: formData.get('address')
-        })
+        body: JSON.stringify(userData)
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Failed to add user');
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || 'Failed to add user');
+            }).catch(e => {
+                // If we can't parse the error as JSON, use the status text
+                if (e instanceof SyntaxError) {
+                    throw new Error(`Failed to add user: ${response.statusText}`);
+                }
+                throw e; // Re-throw if it's our custom error
+            });
         }
         return response.json();
     })
     .then(data => {
+        console.log('User added successfully:', data);
         alert('User added successfully');
         closeAllModals();
         loadUserManagementContent();
@@ -2028,6 +2105,13 @@ function addUser(formData) {
     .catch(error => {
         console.error('Error adding user:', error);
         alert(`Error adding user: ${error.message}`);
+    })
+    .finally(() => {
+        // Reset button state
+        if (submitButton) {
+            submitButton.innerHTML = 'Add User';
+            submitButton.disabled = false;
+        }
     });
 }
 
@@ -2247,3 +2331,4 @@ function saveMenuItem(formData) {
         }
     });
 }
+

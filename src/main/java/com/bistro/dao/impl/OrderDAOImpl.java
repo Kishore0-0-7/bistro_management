@@ -621,16 +621,16 @@ public class OrderDAOImpl implements OrderDAO {
             
             if (needsFixing) {
                 // First try to get the current value from the database
-                try (Connection conn = DatabaseConfig.getConnection();
-                     PreparedStatement stmt = conn.prepareStatement("SELECT total_amount FROM orders WHERE id = ?")) {
-                    
-                    stmt.setInt(1, order.getId());
-                    try (ResultSet rs = stmt.executeQuery()) {
-                        if (rs.next()) {
+            try (Connection conn = DatabaseConfig.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement("SELECT total_amount FROM orders WHERE id = ?")) {
+                
+                stmt.setInt(1, order.getId());
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
                             BigDecimal dbAmount = rs.getBigDecimal("total_amount");
                             if (dbAmount != null && dbAmount.compareTo(BigDecimal.ZERO) > 0) {
                                 // If a non-zero amount is found in the database, use it (this respects manual updates)
-                                order.setTotalAmount(dbAmount);
+                        order.setTotalAmount(dbAmount);
                                 logger.info("Using manually set amount from database for order #{}: {}", order.getId(), dbAmount);
                                 return; // Exit early - we found the amount in the database
                             }

@@ -266,7 +266,7 @@
                     <li><a href="about.html">About</a></li>
                     <li><a href="contact.html">Contact</a></li>
                     <li><a href="orders.html" class="hidden" id="orders-link">My Orders</a></li>
-                    <li><a href="admin.html" class="hidden" id="admin">Admin</a></li>
+                    <li><a href="admin.html" class="hidden" id="admin-link">Admin</a></li>
                 </ul>
             </nav>
             <div class="user-actions">
@@ -274,6 +274,9 @@
                 <button id="login-btn" class="auth-btn">Login</button>
                 <button id="register-btn" class="auth-btn">Register</button>
                 <div id="user-profile" class="hidden">
+                    <a href="profile.html" class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </a>
                     <span id="username-display"></span>
                     <button id="logout-btn">Logout</button>
                 </div>
@@ -427,6 +430,32 @@
     <script src="js/app.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/cart-page.js"></script>
+    
+    <script>
+        // Initialize cart page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            if (user) {
+                // Show orders link
+                const ordersLink = document.getElementById('orders-link');
+                if (ordersLink) {
+                    ordersLink.classList.remove('hidden');
+                }
+                
+                // Show admin link if user is admin or staff
+                if (user.role === 'ADMIN' || user.role === 'STAFF') {
+                    const adminLink = document.getElementById('admin-link');
+                    if (adminLink) {
+                        adminLink.classList.remove('hidden');
+                    }
+                }
+                
+                // Update user avatar
+                updateUserAvatar();
+            }
+        });
+    </script>
     
     <!-- Direct cart access script as last resort -->
     <script>

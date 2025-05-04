@@ -113,7 +113,20 @@ public class AuthController extends BaseController {
     private void handleRegister(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             String requestBody = getRequestBody(request);
+            
+            // Log the request body for debugging (removing sensitive info)
+            String logBody = requestBody.replaceAll("\"password\":\"[^\"]*\"", "\"password\":\"[MASKED]\"");
+            System.out.println("Registration request body: " + logBody);
+            
             User user = objectMapper.readValue(requestBody, User.class);
+            
+            // Ensure we have a password before registering
+            if (user.getPassword() == null || user.getPassword().isEmpty()) {
+                throw new Exception("Password is required");
+            }
+            
+            // Log the user object (without password)
+            System.out.println("Registering user: " + user.getUsername() + ", Email: " + user.getEmail() + ", Role: " + user.getRole());
             
             // Register the user
             User registeredUser = userService.register(user);
@@ -132,6 +145,8 @@ public class AuthController extends BaseController {
             
             sendJsonResponse(response, responseMap);
         } catch (Exception e) {
+            System.err.println("Error during registration: " + e.getMessage());
+            e.printStackTrace();
             sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Error during registration: " + e.getMessage());
         }
     }

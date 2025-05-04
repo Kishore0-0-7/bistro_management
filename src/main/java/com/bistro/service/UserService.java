@@ -100,4 +100,24 @@ public interface UserService {
      * @throws Exception if check fails
      */
     boolean isEmailAvailable(String email) throws Exception;
+    
+    /**
+     * Set a new password for a user (admin only).
+     * This method doesn't require old password verification.
+     *
+     * @param userId the user ID
+     * @param newPassword the new password (plain text)
+     * @return true if the password was changed, false otherwise
+     * @throws Exception if password change fails
+     */
+    boolean setPassword(int userId, String newPassword) throws Exception;
+
+    /**
+     * Delete a user by ID.
+     *
+     * @param userId the user ID to delete
+     * @return true if the user was deleted, false otherwise
+     * @throws Exception if deletion fails
+     */
+    boolean deleteUser(int userId) throws Exception;
 }
