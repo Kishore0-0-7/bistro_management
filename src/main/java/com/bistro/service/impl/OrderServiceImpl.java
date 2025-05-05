@@ -43,6 +43,17 @@ public class OrderServiceImpl implements OrderService {
             order.setPaymentStatus("PENDING");
         }
         
+        // Calculate order total from the cart if possible
+        if ((order.getTotalAmount() == null || order.getTotalAmount().compareTo(BigDecimal.ZERO) == 0) && order.getUserId() > 0) {
+            BigDecimal cartTotal = getCartTotalForUser(order.getUserId());
+            if (cartTotal.compareTo(BigDecimal.ZERO) > 0) {
+                order.setTotalAmount(cartTotal);
+                logger.info("Set order total from user's cart: {}", cartTotal);
+            } else {
+                logger.info("Cart total was zero, using order items or provided total");
+            }
+        }
+        
         // Initialize totalAmount if null
         if (order.getTotalAmount() == null) {
             order.setTotalAmount(BigDecimal.ZERO);
@@ -72,6 +83,55 @@ public class OrderServiceImpl implements OrderService {
         logger.info("Order saved with ID: {}, totalAmount: {}", savedOrder.getId(), savedOrder.getTotalAmount());
         
         return savedOrder;
+    }
+    
+    /**
+     * Helper method to get the total of a user's cart from the database
+     * 
+     * @param userId The user ID
+     * @return The cart total amount
+     */
+    private BigDecimal getCartTotalForUser(int userId) {
+        BigDecimal total = BigDecimal.ZERO;
+        try {
+            // Find the user's cart
+            java.sql.Connection conn = com.bistro.util.DatabaseConfig.getConnection();
+            
+            // First get the cart ID for this user
+            java.sql.PreparedStatement stmt = conn.prepareStatement(
+                "SELECT id FROM carts WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1");
+            stmt.setInt(1, userId);
+            java.sql.ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                int cartId = rs.getInt("id");
+                rs.close();
+                stmt.close();
+                
+                // Now get the total using the stored procedure
+                stmt = conn.prepareStatement("CALL usp_get_cart_total(?)");
+                stmt.setInt(1, cartId);
+                rs = stmt.executeQuery();
+                
+                if (rs.next()) {
+                    BigDecimal cartTotal = rs.getBigDecimal("total");
+                    if (cartTotal != null) {
+                        total = cartTotal;
+                        logger.info("Retrieved cart total {} for user ID {} from cart ID {}", 
+                                   total, userId, cartId);
+                    }
+                }
+            }
+            
+            rs.close();
+            stmt.close();
+            conn.close();
+            
+        } catch (Exception e) {
+            logger.error("Error calculating cart total for user ID {}: {}", userId, e.getMessage());
+        }
+        
+        return total;
     }
     
     @Override
