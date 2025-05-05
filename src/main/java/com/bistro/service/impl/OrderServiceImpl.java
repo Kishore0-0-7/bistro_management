@@ -351,4 +351,31 @@ public class OrderServiceImpl implements OrderService {
         
         return orders;
     }
+    
+    /**
+     * Place an order that properly includes items from the user's cart.
+     * This method uses a stored procedure to ensure order items are saved to the database.
+     * 
+     * @param userId The ID of the user placing the order
+     * @param deliveryAddress The delivery address
+     * @param paymentMethod The payment method
+     * @param specialInstructions Any special instructions for the order
+     * @return The newly created order with all its items
+     * @throws Exception if an error occurs during order creation
+     */
+    public Order placeOrderWithCartItems(int userId, String deliveryAddress, String paymentMethod, String specialInstructions) throws Exception {
+        logger.info("Creating order with cart items for user ID: {}", userId);
+
+        OrderDAOImpl orderDAOImpl = (OrderDAOImpl) orderDAO;
+        try {
+            // Use the stored procedure to place the order with items from cart
+            Order order = orderDAOImpl.placeOrderWithItems(userId, deliveryAddress, paymentMethod, specialInstructions);
+            logger.info("Order created with ID: {}, total amount: {}, items: {}", 
+                      order.getId(), order.getTotalAmount(), order.getOrderItems().size());
+            return order;
+        } catch (Exception e) {
+            logger.error("Error creating order with cart items: {}", e.getMessage());
+            throw e;
+        }
+    }
 }

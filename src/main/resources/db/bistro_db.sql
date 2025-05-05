@@ -206,7 +206,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin1','admin1@bistro.com','$2a$10$3g4oIfNqX51bvRdTCRwMb.fY7EcNpFko1vz6BKNzpWTZlR0wX9Zra','ADMIN','Admin','User','09361070035','vinayagar Kovil street-2','2025-05-04 14:26:33','2025-05-04 21:40:46'),(4,'kishore','kishore@gmail.com','$2a$10$98KSTYPSiNRK/Of8GJ1mceKymWHO1ZNAOVL/ABYwEOPW9G.xr6e9W','ADMIN',NULL,NULL,NULL,NULL,'2025-05-04 15:31:23','2025-05-04 21:50:57'),(9,'admin','admin@bistro.com','$2a$10$zKNWtwJ1SyZypV3wcqHqCuhrrP9Gk7imLAFTq0U3TrD.5B.5a/j5W','ADMIN','                     ','User','','','2025-05-04 21:40:58','2025-05-04 16:28:20'),(10,'staff','staff@bistro.com','$2a$10$LK.f6PLj0aDOy/6gGtGYm.hgKAVYUnHlnDktEXoQ/uUR53h4MT46S','STAFF','Staff','User','','','2025-05-04 21:40:58','2025-05-04 16:28:50'),(11,'customer','customer@example.com','$2a$10$ihYqWDqLbxSQRBFkWYmXnOvFlD3pQy6IP1JYUuGLkEUIcvct6hHBG','CUSTOMER','Customer','User','','','2025-05-04 21:40:58','2025-05-04 16:30:05');
+INSERT INTO `users` VALUES (1,'kishore','kishore@gmail.com','$2a$10$98KSTYPSiNRK/Of8GJ1mceKymWHO1ZNAOVL/ABYwEOPW9G.xr6e9W','ADMIN',NULL,NULL,NULL,NULL,'2025-05-04 15:31:23','2025-05-04 21:50:57'),(2,'admin','admin@bistro.com','$2a$10$zKNWtwJ1SyZypV3wcqHqCuhrrP9Gk7imLAFTq0U3TrD.5B.5a/j5W','ADMIN','                     ','User','','','2025-05-04 21:40:58','2025-05-04 16:28:20'),(3,'staff','staff@bistro.com','$2a$10$LK.f6PLj0aDOy/6gGtGYm.hgKAVYUnHlnDktEXoQ/uUR53h4MT46S','STAFF','Staff','User','','','2025-05-04 21:40:58','2025-05-04 16:28:50'),(4,'customer','customer@example.com','$2a$10$ihYqWDqLbxSQRBFkWYmXnOvFlD3pQy6IP1JYUuGLkEUIcvct6hHBG','CUSTOMER','Customer','User','','','2025-05-04 21:40:58','2025-05-04 16:30:05');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -413,6 +413,76 @@ BEGIN
     
     -- Update cart timestamp
     UPDATE carts SET updated_at = CURRENT_TIMESTAMP WHERE id = p_cart_id;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `usp_place_order` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `usp_place_order`(
+    IN p_user_id INT,
+    IN p_delivery_address TEXT,
+    IN p_payment_method VARCHAR(50),
+    IN p_special_instructions TEXT,
+    OUT p_order_id INT
+)
+BEGIN
+    DECLARE v_total DECIMAL(10,2) DEFAULT 0;
+    DECLARE v_cart_id INT;
+    
+    -- Start transaction
+    START TRANSACTION;
+    
+    -- Get the user's cart ID
+    SELECT id INTO v_cart_id FROM carts 
+    WHERE user_id = p_user_id
+    ORDER BY updated_at DESC 
+    LIMIT 1;
+    
+    IF v_cart_id IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cart not found for user';
+        ROLLBACK;
+    END IF;
+    
+    -- Calculate total amount from cart
+    CALL usp_get_cart_total(v_cart_id);
+    SELECT COALESCE(SUM(mi.price * ci.quantity), 0) INTO v_total
+    FROM cart_items ci
+    JOIN menu_items mi ON ci.menu_item_id = mi.id
+    WHERE ci.cart_id = v_cart_id;
+    
+    -- Create order
+    INSERT INTO orders (user_id, status, total_amount, order_date, delivery_address, payment_method, payment_status, special_instructions)
+    VALUES (p_user_id, 'PENDING', v_total, NOW(), p_delivery_address, p_payment_method, 'PENDING', p_special_instructions);
+    
+    -- Get the new order ID
+    SET p_order_id = LAST_INSERT_ID();
+    
+    -- Copy cart items to order items
+    INSERT INTO order_items (order_id, menu_item_id, menu_item_name, quantity, price, special_instructions)
+    SELECT 
+        p_order_id, 
+        ci.menu_item_id, 
+        mi.name, 
+        ci.quantity, 
+        mi.price,
+        NULL  -- Set special instructions if needed
+    FROM cart_items ci
+    JOIN menu_items mi ON ci.menu_item_id = mi.id
+    WHERE ci.cart_id = v_cart_id;
+    
+    -- Commit the transaction
+    COMMIT;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;

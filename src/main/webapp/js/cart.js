@@ -446,70 +446,96 @@ function placeOrder() {
     
     console.log('Placing order with total amount:', totalAmount);
     
-    // Create order object
-    const order = {
-        deliveryAddress: deliveryAddress,
-        paymentMethod: paymentMethod,
-        specialInstructions: specialInstructions,
-        totalAmount: totalAmount
-    };
-    
-    // Show loading state
-    const checkoutBtn = document.querySelector('#checkout-form button[type="submit"]');
-    if (checkoutBtn) {
-        checkoutBtn.disabled = true;
-        checkoutBtn.textContent = 'Processing...';
-    }
-    
-    // Send order to server
-    fetch('api/orders', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(order)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to place order');
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Extract order details from the response
-        const orderData = data.order || {};
-        const orderId = orderData.id || 'N/A';
-        
-        // Show success message with custom notification
-        showNotification('Success', `Order #${orderId} placed successfully!`, 'success');
-        
-        // Close checkout modal
-        closeAllModals();
-        
-        // Clear cart by calling the api/cart DELETE endpoint
-        fetch('api/cart-service', {
-            method: 'DELETE'
+    // First fetch the current cart items to include in the order
+    fetch('api/cart-service')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
         })
-        .then(() => {
-            // Update cart count to zero
-            updateCartCount([]);
+        .then(cartData => {
+            // Convert cart items to order items format
+            const orderItems = cartData.items.map(item => {
+                const menuItem = item.menuItem || item;
+                return {
+                    menuItemId: item.menuItemId || menuItem.id,
+                    menuItemName: menuItem.name,
+                    quantity: item.quantity,
+                    price: menuItem.price,
+                    specialInstructions: item.specialInstructions || ''
+                };
+            });
             
-            // Redirect to orders page
-            setTimeout(() => {
-                window.location.href = 'orders.html';
-            }, 1500);
+            // Create order object with items included
+            const order = {
+                deliveryAddress: deliveryAddress,
+                paymentMethod: paymentMethod,
+                specialInstructions: specialInstructions,
+                totalAmount: totalAmount,
+                orderItems: orderItems  // Include the order items
+            };
+            
+            console.log('Placing order with items:', orderItems.length);
+            
+            // Show loading state
+            const checkoutBtn = document.querySelector('#checkout-form button[type="submit"]');
+            if (checkoutBtn) {
+                checkoutBtn.disabled = true;
+                checkoutBtn.textContent = 'Processing...';
+            }
+            
+            // Send order to server
+            return fetch('api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(order)
+            });
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to place order');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Extract order details from the response
+            const orderData = data.order || {};
+            const orderId = orderData.id || 'N/A';
+            
+            // Show success message with custom notification
+            showNotification('Success', `Order #${orderId} placed successfully!`, 'success');
+            
+            // Close checkout modal
+            closeAllModals();
+            
+            // Clear cart by calling the api/cart DELETE endpoint
+            fetch('api/cart-service', {
+                method: 'DELETE'
+            })
+            .then(() => {
+                // Update cart count to zero
+                updateCartCount([]);
+                
+                // Redirect to orders page
+                setTimeout(() => {
+                    window.location.href = 'orders.html';
+                }, 1500);
+            });
+        })
+        .catch(error => {
+            console.error('Error placing order:', error);
+            showNotification('Error', 'Failed to place order. Please try again.', 'error');
+            
+            // Re-enable the checkout button
+            const checkoutBtn = document.querySelector('#checkout-form button[type="submit"]');
+            if (checkoutBtn) {
+                checkoutBtn.disabled = false;
+                checkoutBtn.textContent = 'Place Order';
+            }
         });
-    })
-    .catch(error => {
-        console.error('Error placing order:', error);
-        showNotification('Error', 'Failed to place order. Please try again.', 'error');
-        
-        // Re-enable the checkout button
-        if (checkoutBtn) {
-            checkoutBtn.disabled = false;
-            checkoutBtn.textContent = 'Place Order';
-        }
-    });
 }
 
 // Check if user is logged in

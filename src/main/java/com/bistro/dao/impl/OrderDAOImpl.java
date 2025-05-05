@@ -567,6 +567,61 @@ public class OrderDAOImpl implements OrderDAO {
     }
     
     /**
+     * Place an order using the stored procedure that transfers cart items to order items.
+     * This method ensures that order items are properly stored in the database.
+     *
+     * @param userId The user ID
+     * @param deliveryAddress The delivery address
+     * @param paymentMethod The payment method
+     * @param specialInstructions Any special instructions
+     * @return The newly created Order object with all items
+     * @throws Exception if a database error occurs
+     */
+    public Order placeOrderWithItems(int userId, String deliveryAddress, String paymentMethod, String specialInstructions) throws Exception {
+        Connection conn = null;
+        CallableStatement cstmt = null;
+        
+        try {
+            conn = DatabaseConfig.getConnection();
+            
+            // Call the stored procedure to create the order and transfer cart items
+            cstmt = conn.prepareCall("{CALL usp_place_order(?, ?, ?, ?, ?)}");
+            cstmt.setInt(1, userId);
+            cstmt.setString(2, deliveryAddress);
+            cstmt.setString(3, paymentMethod);
+            cstmt.setString(4, specialInstructions);
+            cstmt.registerOutParameter(5, Types.INTEGER); // order_id output parameter
+            
+            cstmt.execute();
+            
+            // Get the new order ID from the output parameter
+            int orderId = cstmt.getInt(5);
+            logger.info("Order created with ID: {} using stored procedure", orderId);
+            
+            // Retrieve the complete order with items
+            return findById(orderId).orElseThrow(() -> new Exception("Failed to retrieve newly created order"));
+        } catch (SQLException e) {
+            logger.error("Error placing order with stored procedure: {}", e.getMessage());
+            throw e;
+        } finally {
+            if (cstmt != null) {
+                try {
+                    cstmt.close();
+                } catch (SQLException e) {
+                    logger.error("Error closing statement: {}", e.getMessage());
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    logger.error("Error closing connection: {}", e.getMessage());
+                }
+            }
+        }
+    }
+    
+    /**
      * Maps a ResultSet row to an Order object.
      *
      * @param rs the ResultSet to map

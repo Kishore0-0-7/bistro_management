@@ -586,64 +586,90 @@ function placeOrder() {
         return;
     }
     
-    // Create order object
-    const order = {
-        deliveryAddress: deliveryAddress,
-        paymentMethod: paymentMethod,
-        specialInstructions: specialInstructions
-    };
-    
     // Show processing indicator
     const submitButton = document.querySelector('#checkout-form button[type="submit"]');
     if (submitButton) {
         submitButton.disabled = true;
         submitButton.innerHTML = 'Processing...';
     }
-    
-    // Send order to server
-    fetch('api/orders', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(order)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to place order');
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Show success message
-        alert('Order placed successfully!');
-        
-        // Close checkout modal
-        closeAllModals();
-        
-        // Clear cart by calling the api/cart DELETE endpoint
-        fetch('api/cart-service', {
-            method: 'DELETE'
+
+    // First fetch the current cart items to include in the order
+    fetch('api/cart-service')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
         })
-        .then(() => {
-            // Update cart 
-            loadCartItems();
-            updateCartCount([]);
+        .then(cartData => {
+            // Convert cart items to order items format
+            const orderItems = cartData.items.map(item => {
+                const menuItem = item.menuItem || item;
+                return {
+                    menuItemId: item.menuItemId || menuItem.id,
+                    menuItemName: menuItem.name,
+                    quantity: item.quantity,
+                    price: menuItem.price,
+                    specialInstructions: item.specialInstructions || ''
+                };
+            });
             
-            // Redirect to orders page
-            window.location.href = 'orders.html';
+            // Create order object with items included
+            const order = {
+                deliveryAddress: deliveryAddress,
+                paymentMethod: paymentMethod,
+                specialInstructions: specialInstructions,
+                totalAmount: parseFloat(cartData.total || 0),
+                orderItems: orderItems  // Include the order items
+            };
+            
+            console.log('Placing order with items:', orderItems.length);
+            
+            // Send order to server
+            return fetch('api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(order)
+            });
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to place order');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Show success message
+            alert('Order placed successfully!');
+            
+            // Close checkout modal
+            closeAllModals();
+            
+            // Clear cart by calling the api/cart DELETE endpoint
+            fetch('api/cart-service', {
+                method: 'DELETE'
+            })
+            .then(() => {
+                // Update cart 
+                loadCartItems();
+                updateCartCount([]);
+                
+                // Redirect to orders page
+                window.location.href = 'orders.html';
+            });
+        })
+        .catch(error => {
+            console.error('Error placing order:', error);
+            alert('Failed to place order. Please try again.');
+            
+            // Reset submit button
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Place Order';
+            }
         });
-    })
-    .catch(error => {
-        console.error('Error placing order:', error);
-        alert('Failed to place order. Please try again.');
-        
-        // Reset submit button
-        if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.innerHTML = 'Place Order';
-        }
-    });
 }
 
 // Handle login
@@ -878,4 +904,4 @@ function closeAllModals() {
 document.addEventListener('DOMContentLoaded', function() {
     // Check and update authentication UI
     updateAuthUI();
-}); 
+});

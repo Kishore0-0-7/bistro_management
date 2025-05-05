@@ -372,18 +372,29 @@ public class OrderController extends BaseController {
         
         try {
             String requestBody = getRequestBody(request);
-            Order order = objectMapper.readValue(requestBody, Order.class);
+            JsonNode jsonNode = objectMapper.readTree(requestBody);
             
-            // Set the user ID
-            order.setUserId(user.getId());
+            logger.info("Received order request from user ID: {}", user.getId());
             
-            logger.info("Placing order for user ID: {}, initial totalAmount: {}", 
-                       user.getId(), order.getTotalAmount());
+            // Extract order data from request
+            String deliveryAddress = jsonNode.has("deliveryAddress") ? jsonNode.get("deliveryAddress").asText() : "";
+            String paymentMethod = jsonNode.has("paymentMethod") ? jsonNode.get("paymentMethod").asText() : "CASH";
+            String specialInstructions = jsonNode.has("specialInstructions") ? jsonNode.get("specialInstructions").asText() : "";
             
-            Order placedOrder = orderService.placeOrder(order);
+            // Use the OrderServiceImpl directly to access our new method
+            OrderServiceImpl orderServiceImpl = (OrderServiceImpl) orderService;
             
-            logger.info("Order placed, ID: {}, final totalAmount: {}", 
-                      placedOrder.getId(), placedOrder.getTotalAmount());
+            // Place order with cart items using our new method that uses the stored procedure
+            Order placedOrder = orderServiceImpl.placeOrderWithCartItems(
+                user.getId(),
+                deliveryAddress,
+                paymentMethod,
+                specialInstructions
+            );
+            
+            logger.info("Order placed with items, ID: {}, final totalAmount: {}, items: {}", 
+                      placedOrder.getId(), placedOrder.getTotalAmount(), 
+                      placedOrder.getOrderItems() != null ? placedOrder.getOrderItems().size() : 0);
             
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("success", true);
