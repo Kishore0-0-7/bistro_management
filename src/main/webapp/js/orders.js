@@ -682,8 +682,33 @@ function formatStatus(status) {
 
 // Format date
 function formatDate(dateString) {
+    // Parse the incoming date string
     const date = new Date(dateString);
-    return date.toLocaleString();
+    
+    // Get the client's local date (without adjusting for timezone)
+    const currentDate = new Date();
+    
+    // Check if the given date is in the future relative to local time
+    // If so, adjust by subtracting a day (common timezone issue with UTC vs local)
+    const adjustedDate = new Date(date);
+    if (date > currentDate && 
+        date.getDate() !== currentDate.getDate()) {
+        adjustedDate.setDate(adjustedDate.getDate() - 1);
+    }
+    
+    // Format the date using local timezone settings
+    const options = { 
+        year: 'numeric', 
+        month: 'numeric', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: true
+    };
+    
+    // Return the formatted date using the client's locale settings
+    return new Intl.DateTimeFormat('en-IN', options).format(adjustedDate);
 }
 
 // Check if user is logged in

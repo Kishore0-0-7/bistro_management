@@ -213,7 +213,7 @@ function updateCartView(items, total) {
             <div class="cart-item" data-id="${itemId}">
                 <div class="cart-item-info">
                     <h4>${name}</h4>
-                    <p>$${parseFloat(price).toFixed(2)} x ${item.quantity}</p>
+                    <p>₹${parseFloat(price).toFixed(2)} x ${item.quantity}</p>
                 </div>
                 <div class="cart-item-actions">
                     <button class="decrease-quantity-btn" data-id="${itemId}">-</button>
@@ -417,10 +417,10 @@ function displayCheckoutItems(items, total) {
             <div class="order-item">
                 <div class="order-item-info">
                     <h4>${name}</h4>
-                    <p>$${parseFloat(price).toFixed(2)} x ${quantity}</p>
+                    <p>₹${parseFloat(price).toFixed(2)} x ${quantity}</p>
                 </div>
                 <div class="order-item-total">
-                    <p>$${itemTotal.toFixed(2)}</p>
+                    <p>₹${itemTotal.toFixed(2)}</p>
                 </div>
             </div>
         `;
