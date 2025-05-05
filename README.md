@@ -54,95 +54,127 @@ bistro-restaurant/
 ### Prerequisites
 
 - Java Development Kit (JDK) 11 or higher
-- Apache Maven
-- MySQL Server
-- Apache Tomcat 9 or higher
+- Apache Maven 3.6.0 or higher
+- MySQL Server 8.0 or higher
+- Apache Tomcat 9 (embedded via Maven plugin)
 
-### Database Setup
+### Step 1: Clone or Download the Project
+
+Clone the repository or download and extract the ZIP file to your local machine.
+
+### Step 2: Configure Database
 
 1. Start MySQL server
-2. Run the database setup script:
+2. Create a database user with appropriate permissions:
+   - For Windows:
+     ```
+     mysql -u root -p
+     CREATE USER 'bistro_user'@'localhost' IDENTIFIED BY 'bistro_password';
+     GRANT ALL PRIVILEGES ON *.* TO 'bistro_user'@'localhost';
+     FLUSH PRIVILEGES;
+     exit
+     ```
+   - For Linux/Mac:
+     ```
+     mysql -u root -p
+     CREATE USER 'bistro_user'@'localhost' IDENTIFIED BY 'bistro_password';
+     GRANT ALL PRIVILEGES ON *.* TO 'bistro_user'@'localhost';
+     FLUSH PRIVILEGES;
+     exit
+     ```
 
-```bash
-# For Linux/Mac
-mysql -u root -p < src/main/resources/db/bistro_db.sql
+3. Run the database setup script:
+   - For Windows:
+     ```
+     mysql -u root -p < src\main\resources\db\bistro_db.sql
+     ```
+   - For Linux/Mac:
+     ```
+     mysql -u root -p < src/main/resources/db/bistro_db.sql
+     ```
 
-# For Windows
-mysql -u root -p -e "source src/main/resources/db/bistro_db.sql"
+Alternatively, you can use the provided test-database.bat (Windows) or test-database.sh (Unix/Mac) script:
+- Windows: `test-database.bat`
+- Linux/Mac: `./test-database.sh`
+
+### Step 3: Configure Database Connection (if necessary)
+
+If your MySQL setup uses different credentials or port, modify the database configuration in:
+`src/main/java/com/bistro/util/DatabaseConfig.java`
+
+Update the following constants as needed:
+```java
+private static final String DB_URL = "jdbc:mysql://localhost:3306/bistro_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
+private static final String DB_USER = "root"; // Change to your MySQL username
+private static final String DB_PASSWORD = "root"; // Change to your MySQL password
 ```
 
-This will:
-- Create the `bistro_db` database
-- Create a user `bistro_user` with password `bistro_password`
-- Create the necessary tables
-- Insert sample data
+### Step 4: Run the Application
 
-### Running the Application
+#### Option 1: Using the provided scripts
+- For Windows: Run the `run.bat` file
+- For Linux/Mac: Run the `run.sh` file (make it executable first with `chmod +x run.sh`)
 
-#### Option 1: Using Maven Tomcat Plugin (Recommended)
+#### Option 2: Using Maven directly
+1. Open a terminal/command prompt
+2. Navigate to the project directory
+3. Run the command:
+   ```
+   mvn clean tomcat7:run
+   ```
 
-1. Navigate to the project directory
-2. Run the application using Maven:
+### Step 5: Access the Application
+Open your web browser and go to: http://localhost:8080/
 
-```bash
-mvn tomcat7:run
-```
+## Default Login Credentials
 
-3. Access the application at `http://localhost:8080/`
-
-#### Option 2: Building and Deploying to External Tomcat
-
-1. Build the project using Maven:
-
-```bash
-mvn clean package
-```
-
-2. Copy the WAR file from the `target` directory to Tomcat's `webapps` directory
-3. Start Tomcat server
-4. Access the application at `http://localhost:8080/bistro`
-
-## Default Admin Login
-
+### Admin User
 - Username: admin
 - Password: admin123
 
-## API Endpoints
+### Regular User
+- Username: user
+- Password: user123
 
-### Authentication
-- `POST /api/auth/login` - Login
-- `POST /api/auth/register` - Register
-- `POST /api/auth/logout` - Logout
-- `GET /api/auth/check` - Check authentication status
+## Troubleshooting
 
-### Menu
-- `GET /api/menu` - Get all menu items
-- `GET /api/menu/categories` - Get all categories
-- `GET /api/menu/featured` - Get featured menu items
-- `GET /api/menu/category/{category}` - Get menu items by category
-- `GET /api/menu/search?q={query}` - Search menu items
-- `GET /api/menu/{id}` - Get menu item by ID
-- `POST /api/menu` - Add new menu item (admin only)
-- `PUT /api/menu/{id}` - Update menu item (admin only)
-- `DELETE /api/menu/{id}` - Delete menu item (admin only)
+### Database Connection Issues
+1. Ensure MySQL server is running
+2. Verify database credentials in `DatabaseConfig.java`
+3. Make sure the database and tables are created properly
+4. Run the database test script to verify connection:
+   - Windows: `test-database.bat`
+   - Linux/Mac: `./test-database.sh`
 
-### Cart
-- `GET /api/cart` - Get cart
-- `POST /api/cart/add` - Add item to cart
-- `POST /api/cart/update` - Update cart item
-- `POST /api/cart/remove` - Remove item from cart
-- `POST /api/cart/clear` - Clear cart
+### Application Not Starting
+1. Check if port 8080 is already in use by another application
+2. Verify that you have JDK 11 or higher installed
+3. Ensure Maven is properly installed and in your PATH
 
-### Orders
-- `GET /api/orders` - Get user orders
-- `GET /api/orders/{id}` - Get order by ID
-- `POST /api/orders` - Place order
-- `PUT /api/orders/{id}` - Update order
-- `DELETE /api/orders/{id}` - Cancel order
+### JavaScript Errors
+1. Clear your browser cache
+2. Check browser console for specific errors
+3. Ensure all JavaScript files are properly loaded
 
-### Admin
-- `GET /api/admin/dashboard` - Get dashboard data
-- `GET /api/admin/users` - Get all users
+### Cross-Origin (CORS) Issues
+If accessing the API from a different domain or port:
+1. Modify the CORS filter in `src/main/java/com/bistro/util/CORSFilter.java`
+2. Ensure the allowed origins include your frontend domain
+
+## Development Setup
+
+### IDE Configuration
+For optimal development experience:
+1. Import as Maven project in your IDE
+2. Set JDK 11 or higher
+3. Set Project encoding to UTF-8
+
+### Hot Reloading
+For faster development, enable hot reloading:
+1. Add the following to the tomcat7-maven-plugin configuration:
+   ```xml
+   <contextReloadable>true</contextReloadable>
+   ```
 
 ## License
 

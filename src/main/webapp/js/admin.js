@@ -487,7 +487,7 @@ function getRecentOrdersHtml(orders) {
                     <p><strong>Customer:</strong> ${order.userName || 'User #' + order.userId}</p>
                     <p><strong>Date:</strong> ${formatDate(order.orderDate)}</p>
                     <p><strong>Items:</strong> ${itemsText}</p>
-                    <p><strong>Total:</strong> ₹&{totalAmount.toFixed(2)}</p>
+                    <p><strong>Total:</strong> ₹${totalAmount.toFixed(2)}</p>
                 </div>
                 <div class="recent-order-actions">
                     <button class="btn-primary view-order-btn" data-id="${order.id}">View Details</button>
@@ -1481,7 +1481,7 @@ function displayOrderManagementContent(orders) {
                 console.error('Error parsing totalAmount', e);
                 totalAmount = 0;
             }
-            return `₹&{totalAmount.toFixed(2)}`;
+            return `₹${totalAmount.toFixed(2)}`;
         }},
         { label: 'Status', renderer: order => `<span class="order-status ${order.status.toLowerCase()}">${order.status}</span>` },
         { label: 'Actions', renderer: order => `
@@ -1587,7 +1587,7 @@ function getOrdersListHtml(orders) {
                 <td>${order.userName || 'User #' + order.userId}</td>
                 <td>${formatDate(order.orderDate)}</td>
                 <td>${getOrderItemsCount(order)}</td>
-                <td>₹&{totalAmount.toFixed(2)}</td>
+                <td>₹${totalAmount.toFixed(2)}</td>
                 <td><span class="order-status ${order.status.toLowerCase()}">${order.status}</span></td>
                 <td>
                     <button class="btn-primary view-order-btn" data-id="${order.id}">View</button>
@@ -1717,7 +1717,7 @@ function displayOrderDetails(order) {
                     <p class="item-name">${item.menuItemName}</p>
                     <p class="item-price">₹${item.price.toFixed(2)} x ${item.quantity}</p>
                 </div>
-                <p class="item-total">₹&{itemTotal.toFixed(2)}</p>
+                <p class="item-total">₹${itemTotal.toFixed(2)}</p>
                 ${item.specialInstructions ? `<p class="item-instructions">Note: ${item.specialInstructions}</p>` : ''}
             </div>
         `;
@@ -1752,7 +1752,7 @@ function displayOrderDetails(order) {
             ${itemsHtml}
         </div>
         <div class="order-detail-total">
-            <p>Total: ₹&{orderTotal.toFixed(2)}</p>
+            <p>Total: ₹${orderTotal.toFixed(2)}</p>
         </div>
         <div class="order-detail-actions">
             <button class="btn-secondary update-status-btn" data-id="${order.id}" data-status="${order.status}">Update Status</button>

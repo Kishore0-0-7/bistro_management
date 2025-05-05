@@ -1,5 +1,16 @@
 // Main Application Script
 
+// First, load the browser compatibility script
+document.addEventListener('DOMContentLoaded', function() {
+    // Load browser compatibility script
+    if (!document.getElementById('browser-compatibility-script')) {
+        var script = document.createElement('script');
+        script.id = 'browser-compatibility-script';
+        script.src = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/js/browser-compatibility.js';
+        document.head.appendChild(script);
+    }
+});
+
 // DOM Elements
 let mobileMenuToggle, mainNav, mainNavLinks, pageTitle;
 
