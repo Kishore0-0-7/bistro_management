@@ -36,7 +36,7 @@ CREATE TABLE `cart_items` (
   KEY `menu_item_id` (`menu_item_id`),
   CONSTRAINT `cart_items_ibfk_1` FOREIGN KEY (`cart_id`) REFERENCES `carts` (`id`) ON DELETE CASCADE,
   CONSTRAINT `cart_items_ibfk_2` FOREIGN KEY (`menu_item_id`) REFERENCES `menu_items` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -65,7 +65,7 @@ CREATE TABLE `carts` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `carts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +74,7 @@ CREATE TABLE `carts` (
 
 LOCK TABLES `carts` WRITE;
 /*!40000 ALTER TABLE `carts` DISABLE KEYS */;
-INSERT INTO `carts` VALUES (1,NULL,'3215740DCA2F4D92C7AD1A1D6BC5AA39','2025-05-04 14:42:29','2025-05-04 14:48:14'),(2,NULL,'71A8EEF697C6B5A0AFF7A3F295FEF6A3','2025-05-04 15:00:35','2025-05-04 15:00:51'),(3,NULL,'77D145482200B5E7681BAAE0391D567A','2025-05-04 15:05:16','2025-05-04 15:05:21'),(4,NULL,'5DD5050CFC8D06216D14DCD40BEB7635','2025-05-04 15:06:20','2025-05-04 15:06:26'),(5,NULL,'CB745473DA486D1B8996E9937E9E3966','2025-05-04 15:09:45','2025-05-04 15:09:51'),(6,NULL,'D8839956ABFAA8D0EA89024FBAC03994','2025-05-04 15:15:37','2025-05-04 15:15:50'),(7,NULL,'FEBB824E4CDB1AEC1CC3CC948E75988C','2025-05-04 15:24:51','2025-05-04 15:24:51'),(8,1,'44C34FC811269C701F50EFB09DE53F52','2025-05-04 15:32:43','2025-05-04 21:28:42'),(9,NULL,'EFE0563D354AC6198B2B763F4FFA4D1C','2025-05-04 17:53:54','2025-05-04 17:53:54'),(10,NULL,'2081335999608D598751BE213D38A0F0','2025-05-04 17:58:46','2025-05-04 17:58:46'),(11,NULL,'2444FC165EFA04645102A76E263F3FF3','2025-05-04 17:58:59','2025-05-04 17:58:59'),(12,NULL,'963B4389E870312BEE1CBDAFF722E837','2025-05-04 17:59:17','2025-05-04 17:59:17'),(13,NULL,'D4E7B7C990DA533323F84273462AAE7D','2025-05-04 19:43:14','2025-05-04 19:43:14'),(14,NULL,'8645B57A4017E6018794669979C14749','2025-05-04 20:30:23','2025-05-04 20:30:23'),(15,NULL,'B3C8601300BEC1A1DF15E50F63514503','2025-05-04 20:32:33','2025-05-04 20:32:33'),(16,NULL,'79B70EE7A95644840A6F1C7D4E3EEB2D','2025-05-04 20:46:29','2025-05-04 20:46:29'),(17,4,'F397617A10F1A3E380AC593B1D7D798B','2025-05-04 21:01:04','2025-05-04 21:57:38'),(18,NULL,'B24B99CC4FAD20A44C61E7DDF7BBF34B','2025-05-04 21:02:12','2025-05-04 21:02:12'),(19,NULL,'46A637280180BB80FA506E1241E68D07','2025-05-04 21:30:50','2025-05-04 21:30:50'),(20,NULL,'5B2BC2A5615E0C6F5A95D7275330DE1C','2025-05-04 21:30:50','2025-05-04 21:30:50'),(21,NULL,'34B19E816C052019E9238D80EB16E06F','2025-05-04 21:30:50','2025-05-04 21:30:50'),(22,9,'38D43DDC0AF2154FB355E2BF3260DAC0','2025-05-04 21:57:32','2025-05-04 21:59:28'),(23,10,'38D43DDC0AF2154FB355E2BF3260DAC0','2025-05-04 21:59:11','2025-05-04 21:59:23');
+INSERT INTO `carts` VALUES (1,NULL,'3215740DCA2F4D92C7AD1A1D6BC5AA39','2025-05-04 14:42:29','2025-05-04 14:48:14'),(2,NULL,'71A8EEF697C6B5A0AFF7A3F295FEF6A3','2025-05-04 15:00:35','2025-05-04 15:00:51'),(3,NULL,'77D145482200B5E7681BAAE0391D567A','2025-05-04 15:05:16','2025-05-04 15:05:21'),(4,NULL,'5DD5050CFC8D06216D14DCD40BEB7635','2025-05-04 15:06:20','2025-05-04 15:06:26'),(5,NULL,'CB745473DA486D1B8996E9937E9E3966','2025-05-04 15:09:45','2025-05-04 15:09:51'),(6,NULL,'D8839956ABFAA8D0EA89024FBAC03994','2025-05-04 15:15:37','2025-05-04 15:15:50'),(7,NULL,'FEBB824E4CDB1AEC1CC3CC948E75988C','2025-05-04 15:24:51','2025-05-04 15:24:51'),(8,1,'8E45A9AC4D829380BC4B2D7BBD4296C0','2025-05-04 15:32:43','2025-05-05 14:56:23'),(9,NULL,'EFE0563D354AC6198B2B763F4FFA4D1C','2025-05-04 17:53:54','2025-05-04 17:53:54'),(10,NULL,'2081335999608D598751BE213D38A0F0','2025-05-04 17:58:46','2025-05-04 17:58:46'),(11,NULL,'2444FC165EFA04645102A76E263F3FF3','2025-05-04 17:58:59','2025-05-04 17:58:59'),(12,NULL,'963B4389E870312BEE1CBDAFF722E837','2025-05-04 17:59:17','2025-05-04 17:59:17'),(13,NULL,'D4E7B7C990DA533323F84273462AAE7D','2025-05-04 19:43:14','2025-05-04 19:43:14'),(14,NULL,'8645B57A4017E6018794669979C14749','2025-05-04 20:30:23','2025-05-04 20:30:23'),(15,NULL,'B3C8601300BEC1A1DF15E50F63514503','2025-05-04 20:32:33','2025-05-04 20:32:33'),(16,NULL,'79B70EE7A95644840A6F1C7D4E3EEB2D','2025-05-04 20:46:29','2025-05-04 20:46:29'),(17,4,'202DEA0317B9F72ABCF0C599A447EDE6','2025-05-04 21:01:04','2025-05-05 14:24:32'),(18,NULL,'B24B99CC4FAD20A44C61E7DDF7BBF34B','2025-05-04 21:02:12','2025-05-04 21:02:12'),(19,NULL,'46A637280180BB80FA506E1241E68D07','2025-05-04 21:30:50','2025-05-04 21:30:50'),(20,NULL,'5B2BC2A5615E0C6F5A95D7275330DE1C','2025-05-04 21:30:50','2025-05-04 21:30:50'),(21,NULL,'34B19E816C052019E9238D80EB16E06F','2025-05-04 21:30:50','2025-05-04 21:30:50'),(22,9,'38D43DDC0AF2154FB355E2BF3260DAC0','2025-05-04 21:57:32','2025-05-04 21:59:28'),(23,10,'38D43DDC0AF2154FB355E2BF3260DAC0','2025-05-04 21:59:11','2025-05-04 21:59:23'),(24,NULL,'E322F791B41F57D28A017876D6321111','2025-05-05 14:19:36','2025-05-05 14:19:36'),(25,12,'DA64D4BCFEA2E8F37AFBAEAF75174E7C','2025-05-05 14:19:36','2025-05-05 14:25:16');
 /*!40000 ALTER TABLE `carts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -105,7 +105,7 @@ CREATE TABLE `menu_items` (
 
 LOCK TABLES `menu_items` WRITE;
 /*!40000 ALTER TABLE `menu_items` DISABLE KEYS */;
-INSERT INTO `menu_items` VALUES (1,'Margherita Pizza','Classic pizza with tomato sauce, mozzarella, and basil',13.99,'Pizza','images/menu/margherita.jpg',1,1,0),(2,'Pepperoni Pizza','Pizza with tomato sauce, mozzarella, and pepperoni',14.99,'Pizza','images/menu/pepperoni.jpg',1,1,0),(3,'Vegetarian Pizza','Pizza with tomato sauce, mozzarella, and assorted vegetables',13.99,'Pizza','images/menu/vegetarian.jpg',1,0,25),(4,'Caesar Salad','Romaine lettuce, croutons, parmesan cheese, and Caesar dressing',8.99,'Salad','images/menu/caesar.jpg',1,1,10),(5,'Greek Salad','Mixed greens, feta cheese, olives, tomatoes, and Greek dressing',9.99,'Salad','images/menu/greek.jpg',1,0,10),(6,'Garden Salad','Mixed greens, tomatoes, cucumbers, and balsamic dressing',7.99,'Salad','images/menu/garden.jpg',1,0,10),(7,'Spaghetti Bolognese','Spaghetti with meat sauce',14.99,'Pasta','images/menu/bolognese.jpg',1,1,25),(8,'Fettuccine Alfredo','Fettuccine with creamy Alfredo sauce',13.99,'Pasta','images/menu/alfredo.jpg',1,0,20),(9,'Lasagna','Layered pasta with meat sauce and cheese',15.99,'Pasta','images/menu/lasagna.jpg',1,0,30),(10,'Grilled Chicken','Grilled chicken breast with vegetables and mashed potatoes',16.99,'Main Course','images/menu/grilled_chicken.jpg',1,1,25),(11,'Beef Steak','Grilled beef steak with vegetables and fries',22.99,'Main Course','images/menu/beef_steak.jpg',1,0,30),(12,'Salmon Fillet','Grilled salmon fillet with vegetables and rice',19.99,'Main Course','images/menu/salmon.jpg',1,0,25),(13,'Chocolate Cake','Rich chocolate cake with chocolate frosting',6.99,'Dessert','images/menu/chocolate_cake.jpg',1,1,5),(14,'Cheesecake','Creamy cheesecake with strawberry topping',7.99,'Dessert','images/menu/cheesecake.jpg',1,0,5),(15,'Ice Cream','Vanilla ice cream with chocolate sauce',4.99,'Dessert','images/menu/ice_cream.jpg',1,0,5),(16,'Coca-Cola','Classic Coca-Cola',2.99,'Beverage','images/menu/coke.jpg',1,0,2),(17,'Sprite','Refreshing Sprite',2.99,'Beverage','images/menu/sprite.jpg',1,0,2);
+INSERT INTO `menu_items` VALUES (1,'Margherita Pizza','Classic pizza with tomato sauce, mozzarella, and basil',299.00,'Pizza','images/menu/margherita.jpg',1,1,0),(2,'Pepperoni Pizza','Pizza with tomato sauce, mozzarella, and pepperoni',249.00,'Pizza','images/menu/pepperoni.jpg',1,1,0),(3,'Vegetarian Pizza','Pizza with tomato sauce, mozzarella, and assorted vegetables',199.00,'Pizza','images/menu/vegetarian.jpg',1,1,0),(4,'Caesar Salad','Romaine lettuce, croutons, parmesan cheese, and Caesar dressing',149.00,'Salad','images/menu/caesar.jpg',1,1,0),(5,'Greek Salad','Mixed greens, feta cheese, olives, tomatoes, and Greek dressing',179.00,'Salad','images/menu/greek.jpg',1,1,0),(6,'Garden Salad','Mixed greens, tomatoes, cucumbers, and balsamic dressing',129.00,'Salad','images/menu/garden.jpg',1,1,0),(7,'Spaghetti Bolognese','Spaghetti with meat sauce',349.00,'Pasta','images/menu/bolognese.jpg',1,1,0),(8,'Fettuccine Alfredo','Fettuccine with creamy Alfredo sauce',349.00,'Pasta','images/menu/alfredo.jpg',1,1,0),(9,'Lasagna','Layered pasta with meat sauce and cheese',399.00,'Pasta','images/menu/lasagna.jpg',1,1,0),(10,'Grilled Chicken','Grilled chicken breast with vegetables and mashed potatoes',449.00,'Main Course','images/menu/grilled_chicken.jpg',1,1,0),(11,'Beef Steak','Grilled beef steak with vegetables and fries',499.00,'Main Course','images/menu/beef_steak.jpg',1,1,0),(12,'Salmon Fillet','Grilled salmon fillet with vegetables and rice',599.00,'Main Course','images/menu/salmon.jpg',1,1,0),(13,'Chocolate Cake','Rich chocolate cake with chocolate frosting',89.00,'Dessert','images/menu/chocolate_cake.jpg',1,1,0),(14,'Cheesecake','Creamy cheesecake with strawberry topping',89.00,'Dessert','images/menu/cheesecake.jpg',1,1,0),(15,'Ice Cream','Vanilla ice cream with chocolate sauce',59.00,'Dessert','images/menu/ice_cream.jpg',1,1,0),(16,'Coca-Cola','Classic Coca-Cola',29.00,'Beverage','images/menu/coke.jpg',1,1,0),(17,'Sprite','Refreshing Sprite',29.00,'Beverage','images/menu/sprite.jpg',1,1,0);
 /*!40000 ALTER TABLE `menu_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -129,7 +129,7 @@ CREATE TABLE `order_items` (
   KEY `menu_item_id` (`menu_item_id`),
   CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
   CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`menu_item_id`) REFERENCES `menu_items` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -162,7 +162,7 @@ CREATE TABLE `orders` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -171,7 +171,6 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (1,1,'READY',500.00,'2025-05-04 10:52:39',NULL,'abc','CASH','PENDING',''),(2,1,'READY',200.00,'2025-05-04 11:17:23',NULL,NULL,'CREDIT_CARD','PENDING',NULL),(3,1,'DELIVERED',300.00,'2025-05-04 11:24:44',NULL,NULL,'CREDIT_CARD','PENDING',NULL),(4,1,'DELIVERED',900.00,'2025-05-04 11:37:42',NULL,NULL,'CREDIT_CARD','PENDING',NULL),(5,1,'READY',18.99,'2025-05-04 11:48:19',NULL,NULL,'CREDIT_CARD','PENDING',NULL),(6,1,'DELIVERED',500.00,'2025-05-04 14:10:12',NULL,NULL,'CREDIT_CARD','PENDING',NULL),(7,1,'PENDING',600.00,'2025-05-04 14:10:33',NULL,NULL,'CREDIT_CARD','PENDING',NULL),(8,4,'DELIVERED',9.99,'2025-05-04 15:31:53',NULL,NULL,'CREDIT_CARD','PENDING',NULL);
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -197,7 +196,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -206,7 +205,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'kishore','kishore@gmail.com','$2a$10$98KSTYPSiNRK/Of8GJ1mceKymWHO1ZNAOVL/ABYwEOPW9G.xr6e9W','ADMIN',NULL,NULL,NULL,NULL,'2025-05-04 15:31:23','2025-05-04 21:50:57'),(2,'admin','admin@bistro.com','$2a$10$zKNWtwJ1SyZypV3wcqHqCuhrrP9Gk7imLAFTq0U3TrD.5B.5a/j5W','ADMIN','                     ','User','','','2025-05-04 21:40:58','2025-05-04 16:28:20'),(3,'staff','staff@bistro.com','$2a$10$LK.f6PLj0aDOy/6gGtGYm.hgKAVYUnHlnDktEXoQ/uUR53h4MT46S','STAFF','Staff','User','','','2025-05-04 21:40:58','2025-05-04 16:28:50'),(4,'customer','customer@example.com','$2a$10$ihYqWDqLbxSQRBFkWYmXnOvFlD3pQy6IP1JYUuGLkEUIcvct6hHBG','CUSTOMER','Customer','User','','','2025-05-04 21:40:58','2025-05-04 16:30:05');
+INSERT INTO `users` VALUES (1,'kishore','kishore@gmail.com','$2a$10$98KSTYPSiNRK/Of8GJ1mceKymWHO1ZNAOVL/ABYwEOPW9G.xr6e9W','ADMIN',NULL,NULL,NULL,NULL,'2025-05-04 15:31:23','2025-05-04 21:50:57'),(2,'admin','admin@bistro.com','$2a$10$zKNWtwJ1SyZypV3wcqHqCuhrrP9Gk7imLAFTq0U3TrD.5B.5a/j5W','ADMIN','                     ','User','','','2025-05-04 21:40:58','2025-05-04 16:28:20'),(3,'staff','staff@bistro.com','$2a$10$LK.f6PLj0aDOy/6gGtGYm.hgKAVYUnHlnDktEXoQ/uUR53h4MT46S','STAFF','Staff','User','','','2025-05-04 21:40:58','2025-05-04 16:28:50'),(4,'customer','customer@example.com','$2a$10$ihYqWDqLbxSQRBFkWYmXnOvFlD3pQy6IP1JYUuGLkEUIcvct6hHBG','CUSTOMER','Customer','User','','','2025-05-04 21:40:58','2025-05-04 16:30:05'),(12,'user1','user1@gmail.com','$2a$10$WCYEmnxyYvBKNXfnfG0A/uxrW23vOBcnQt9mlzeICPEB4GvaN6Ea2','CUSTOMER','user','1','9361070035','-','2025-05-05 08:52:23','2025-05-05 08:52:23');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -363,62 +362,6 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `usp_remove_from_cart` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `usp_remove_from_cart`(IN p_cart_id INT, IN p_menu_item_id INT)
-BEGIN
-    -- Delete item from cart
-    DELETE FROM cart_items 
-    WHERE cart_id = p_cart_id AND menu_item_id = p_menu_item_id;
-    
-    -- Update cart timestamp
-    UPDATE carts SET updated_at = CURRENT_TIMESTAMP WHERE id = p_cart_id;
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `usp_update_cart_item` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `usp_update_cart_item`(IN p_cart_id INT, IN p_menu_item_id INT, IN p_quantity INT)
-BEGIN
-    -- If quantity is 0 or less, remove item
-    IF p_quantity <= 0 THEN
-        DELETE FROM cart_items 
-        WHERE cart_id = p_cart_id AND menu_item_id = p_menu_item_id;
-    ELSE
-        -- Update quantity
-        UPDATE cart_items 
-        SET quantity = p_quantity,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE cart_id = p_cart_id AND menu_item_id = p_menu_item_id;
-    END IF;
-    
-    -- Update cart timestamp
-    UPDATE carts SET updated_at = CURRENT_TIMESTAMP WHERE id = p_cart_id;
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `usp_place_order` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -489,6 +432,62 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `usp_remove_from_cart` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `usp_remove_from_cart`(IN p_cart_id INT, IN p_menu_item_id INT)
+BEGIN
+    -- Delete item from cart
+    DELETE FROM cart_items 
+    WHERE cart_id = p_cart_id AND menu_item_id = p_menu_item_id;
+    
+    -- Update cart timestamp
+    UPDATE carts SET updated_at = CURRENT_TIMESTAMP WHERE id = p_cart_id;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `usp_update_cart_item` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `usp_update_cart_item`(IN p_cart_id INT, IN p_menu_item_id INT, IN p_quantity INT)
+BEGIN
+    -- If quantity is 0 or less, remove item
+    IF p_quantity <= 0 THEN
+        DELETE FROM cart_items 
+        WHERE cart_id = p_cart_id AND menu_item_id = p_menu_item_id;
+    ELSE
+        -- Update quantity
+        UPDATE cart_items 
+        SET quantity = p_quantity,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE cart_id = p_cart_id AND menu_item_id = p_menu_item_id;
+    END IF;
+    
+    -- Update cart timestamp
+    UPDATE carts SET updated_at = CURRENT_TIMESTAMP WHERE id = p_cart_id;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -499,4 +498,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-05  3:31:42
+-- Dump completed on 2025-05-05 20:35:53
