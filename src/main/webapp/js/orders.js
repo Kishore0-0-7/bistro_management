@@ -1,6 +1,3 @@
-// Orders script
-
-// DOM Elements
 const ordersListContainer = document.getElementById('orders-list');
 const orderDetailsModal = document.getElementById('order-details-modal');
 const orderDetailsContainer = document.getElementById('order-details');
@@ -174,6 +171,9 @@ function createOrderElement(order) {
                     <i class="fas fa-times"></i> Cancel Order
                 </button>
             ` : ''}
+            <button class="btn-danger delete-order-btn" data-id="${order.id}">
+                <i class="fas fa-trash"></i> Delete
+            </button>
         </div>
     `;
     
@@ -191,6 +191,14 @@ function createOrderElement(order) {
             }
         });
     }
+    
+    // Add event listener to delete button
+    const deleteBtn = orderElement.querySelector('.delete-order-btn');
+    deleteBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to permanently delete this order? This action cannot be undone.')) {
+            deleteOrder(order.id);
+        }
+    });
     
     return orderElement;
 }
@@ -434,6 +442,60 @@ function cancelOrder(orderId) {
         
         // Show error message with custom modal
         showNotification('Error', 'Failed to cancel order: ' + error.message, 'error');
+    });
+}
+
+// Delete order
+function deleteOrder(orderId) {
+    console.log('Deleting order:', orderId);
+    
+    // Show loading state
+    const loadingModal = document.createElement('div');
+    loadingModal.className = 'loading-overlay';
+    loadingModal.innerHTML = '<div class="loading-spinner"></div><p>Deleting order...</p>';
+    document.body.appendChild(loadingModal);
+    
+    // Use custom endpoint to permanently delete the order
+    fetch(`api/orders/${orderId}/permanent-delete`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        // Remove loading overlay
+        document.body.removeChild(loadingModal);
+        
+        if (!response.ok) {
+            console.error(`Error deleting order. Status: ${response.status}`);
+            // Try to get detailed error message if possible
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || `Failed to delete order. Status: ${response.status}`);
+            }).catch(e => {
+                // If can't parse JSON, use generic error
+                throw new Error(`Failed to delete order. Status: ${response.status}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Show success message with custom modal
+        showNotification('Success', 'Order permanently deleted from the database', 'success');
+        closeAllModals();
+        
+        // Refresh the orders list
+        loadUserOrders();
+    })
+    .catch(error => {
+        // Remove loading overlay if still present
+        if (document.body.contains(loadingModal)) {
+            document.body.removeChild(loadingModal);
+        }
+        
+        console.error(`Error deleting order ${orderId}:`, error);
+        
+        // Show error message with custom modal
+        showNotification('Error', 'Failed to delete order: ' + error.message, 'error');
     });
 }
 

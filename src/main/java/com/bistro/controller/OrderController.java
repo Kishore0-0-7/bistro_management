@@ -6,6 +6,7 @@ import com.bistro.model.Order;
 import com.bistro.model.User;
 import com.bistro.service.OrderService;
 import com.bistro.service.impl.OrderServiceImpl;
+import com.bistro.dao.impl.OrderDAOImpl;
 import com.bistro.util.DatabaseConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -551,7 +552,7 @@ public class OrderController extends BaseController {
     
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // User must be authenticated to cancel an order
+        // User must be authenticated to modify orders
         if (!isAuthenticated(request)) {
             sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Authentication required");
             return;
@@ -565,10 +566,63 @@ public class OrderController extends BaseController {
         }
         
         try {
-            int id = Integer.parseInt(pathInfo.substring(1));
-            
+            // Check if this is a permanent delete request or a regular cancel request
+            if (pathInfo.endsWith("/permanent-delete")) {
+                // Handle permanent deletion
+                int id = Integer.parseInt(pathInfo.replace("/permanent-delete", "").substring(1));
+                permanentlyDeleteOrder(id, request, response);
+            } else {
+                // Regular cancellation (existing code)
+                int id = Integer.parseInt(pathInfo.substring(1));
+                
+                // Check if the order exists
+                Optional<Order> existingOrderOpt = orderService.getOrderById(id);
+                
+                if (existingOrderOpt.isEmpty()) {
+                    sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "Order not found");
+                    return;
+                }
+                
+                Order existingOrder = existingOrderOpt.get();
+                User user = getAuthenticatedUser(request);
+                
+                // Check if the user has access to cancel this order
+                if (!hasRole(request, "ADMIN") && existingOrder.getUserId() != user.getId()) {
+                    sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "Access denied");
+                    return;
+                }
+                
+                logger.info("Cancelling order, ID: {}, currentStatus: {}", id, existingOrder.getStatus());
+                
+                boolean cancelled = orderService.cancelOrder(id);
+                
+                if (cancelled) {
+                    Map<String, Object> responseMap = new HashMap<>();
+                    responseMap.put("success", true);
+                    responseMap.put("message", "Order cancelled successfully");
+                    
+                    sendJsonResponse(response, responseMap);
+                } else {
+                    sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Failed to cancel order");
+                }
+            }
+        } catch (NumberFormatException e) {
+            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Invalid order ID");
+        } catch (Exception e) {
+            logger.error("Error processing order operation: {}", e.getMessage(), e);
+            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Error processing order: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Permanently delete an order from the database
+     */
+    private void permanentlyDeleteOrder(int orderId, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        logger.info("Permanent deletion request for order ID: {}", orderId);
+        
+        try {
             // Check if the order exists
-            Optional<Order> existingOrderOpt = orderService.getOrderById(id);
+            Optional<Order> existingOrderOpt = orderService.getOrderById(orderId);
             
             if (existingOrderOpt.isEmpty()) {
                 sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND, "Order not found");
@@ -578,30 +632,31 @@ public class OrderController extends BaseController {
             Order existingOrder = existingOrderOpt.get();
             User user = getAuthenticatedUser(request);
             
-            // Check if the user has access to cancel this order
+            // Check if the user has access to delete this order
+            // Only the owner of the order or an admin can delete it
             if (!hasRole(request, "ADMIN") && existingOrder.getUserId() != user.getId()) {
                 sendErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, "Access denied");
                 return;
             }
             
-            logger.info("Cancelling order, ID: {}, currentStatus: {}", id, existingOrder.getStatus());
+            logger.info("Permanently deleting order, ID: {}", orderId);
             
-            boolean cancelled = orderService.cancelOrder(id);
+            // Use the DAO directly to permanently delete the order
+            OrderDAOImpl orderDAO = new OrderDAOImpl();
+            boolean deleted = orderDAO.delete(orderId);
             
-            if (cancelled) {
+            if (deleted) {
                 Map<String, Object> responseMap = new HashMap<>();
                 responseMap.put("success", true);
-                responseMap.put("message", "Order cancelled successfully");
+                responseMap.put("message", "Order permanently deleted");
                 
                 sendJsonResponse(response, responseMap);
             } else {
-                sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Failed to cancel order");
+                sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Failed to delete order");
             }
-        } catch (NumberFormatException e) {
-            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Invalid order ID");
         } catch (Exception e) {
-            logger.error("Error cancelling order: {}", e.getMessage(), e);
-            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Error cancelling order: " + e.getMessage());
+            logger.error("Error deleting order: {}", e.getMessage(), e);
+            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error deleting order: " + e.getMessage());
         }
     }
 }
