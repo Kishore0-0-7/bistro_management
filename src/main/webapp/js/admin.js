@@ -381,7 +381,7 @@ function displayDashboardContent(data) {
                 </div>
                 <div class="stat-content">
                     <h4>Total Revenue</h4>
-                    <p>$${totalRevenue.toFixed(2)}</p>
+                    <p>₹${totalRevenue.toFixed(2)}</p>
                 </div>
             </div>
             <div class="stat-card">
@@ -1040,7 +1040,7 @@ function displayMenuManagementContent(items) {
         { label: 'Image', renderer: item => `<img src="${item.imageUrl || 'images/menu/default.jpg'}" alt="${item.name}" class="menu-item-thumbnail">` },
         { label: 'Name', field: 'name' },
         { label: 'Category', field: 'category' },
-        { label: 'Price', renderer: item => `$${parseFloat(item.price).toFixed(2)}` },
+        { label: 'Price', renderer: item => `₹${parseFloat(item.price).toFixed(2)}` },
         { label: 'Available', renderer: item => `<span class="status-badge ${item.available ? 'available' : 'unavailable'}">${item.available ? 'Yes' : 'No'}</span>` },
         { label: 'Featured', renderer: item => `<span class="status-badge ${item.featured ? 'featured' : 'not-featured'}">${item.featured ? 'Yes' : 'No'}</span>` },
         { label: 'Actions', renderer: item => `
@@ -1154,7 +1154,7 @@ function getMenuItemsListHtml(items) {
                 <td><img src="${item.imageUrl || 'images/menu/default.jpg'}" alt="${item.name}" class="menu-item-thumbnail"></td>
                 <td>${item.name}</td>
                 <td>${item.category}</td>
-                <td>$${item.price.toFixed(2)}</td>
+                <td>₹${item.price.toFixed(2)}</td>
                 <td><span class="status-badge ${item.available ? 'available' : 'unavailable'}">${item.available ? 'Yes' : 'No'}</span></td>
                 <td><span class="status-badge ${item.featured ? 'featured' : 'not-featured'}">${item.featured ? 'Yes' : 'No'}</span></td>
                 <td>
@@ -1715,7 +1715,7 @@ function displayOrderDetails(order) {
             <div class="order-item-detail">
                 <div class="order-item-info">
                     <p class="item-name">${item.menuItemName}</p>
-                    <p class="item-price">$${item.price.toFixed(2)} x ${item.quantity}</p>
+                    <p class="item-price">₹${item.price.toFixed(2)} x ${item.quantity}</p>
                 </div>
                 <p class="item-total">$${itemTotal.toFixed(2)}</p>
                 ${item.specialInstructions ? `<p class="item-instructions">Note: ${item.specialInstructions}</p>` : ''}

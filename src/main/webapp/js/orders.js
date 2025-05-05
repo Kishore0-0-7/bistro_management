@@ -154,7 +154,7 @@ function createOrderElement(order) {
             <div class="order-price-delivery">
                 <div class="price-box">
                     <p class="detail-label">Total</p>
-                    <p class="detail-value">$${totalAmount.toFixed(2)}</p>
+                    <p class="detail-value">₹${totalAmount.toFixed(2)}</p>
                 </div>
                 <div class="delivery-box">
                     <p class="detail-label">Delivery</p>
@@ -257,10 +257,10 @@ function displayOrderDetails(order) {
             <div class="order-item-detail">
                 <div class="order-item-info">
                     <p class="item-name">${item.menuItemName}</p>
-                    <p class="item-price">$${itemPrice.toFixed(2)} × ${item.quantity}</p>
+                    <p class="item-price">₹${itemPrice.toFixed(2)} × ${item.quantity}</p>
                     ${item.specialInstructions ? `<p class="item-instructions"><i class="fas fa-info-circle"></i> ${item.specialInstructions}</p>` : ''}
                 </div>
-                <p class="item-total">$${itemTotal.toFixed(2)}</p>
+                <p class="item-total">₹${itemTotal.toFixed(2)}</p>
             </div>
         `;
     });
@@ -358,15 +358,15 @@ function displayOrderDetails(order) {
             <div class="order-detail-total">
                 <div class="subtotal">
                     <span>Subtotal:</span>
-                    <span>$${finalTotal.toFixed(2)}</span>
+                    <span>₹${finalTotal.toFixed(2)}</span>
                 </div>
                 <div class="delivery-fee">
                     <span>Delivery Fee:</span>
-                    <span>$0.00</span>
+                    <span>₹0.00</span>
                 </div>
                 <div class="grand-total">
                     <span>Total:</span>
-                    <span>$${finalTotal.toFixed(2)}</span>
+                    <span>₹${finalTotal.toFixed(2)}</span>
                 </div>
             </div>
         </div>

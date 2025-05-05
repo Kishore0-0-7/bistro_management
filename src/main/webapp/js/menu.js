@@ -178,7 +178,7 @@ function createMenuItemElement(item) {
             <h3>${item.name}</h3>
             <p>${item.description}</p>
             <div class="menu-item-footer">
-                <span class="menu-item-price">$${item.price.toFixed(2)}</span>
+                <span class="menu-item-price">₹${item.price.toFixed(2)}</span>
                 <button class="add-to-cart-btn" data-id="${item.id}">Add to Cart</button>
             </div>
         </div>
@@ -347,7 +347,7 @@ function updateCartDisplay(items, totalAmount) {
             <div class="cart-item" data-id="${itemId}">
                 <div class="cart-item-info">
                     <h4>${itemName}</h4>
-                    <p>$${parseFloat(itemPrice).toFixed(2)} x ${item.quantity}</p>
+                    <p>₹${parseFloat(itemPrice).toFixed(2)} x ${item.quantity}</p>
                 </div>
                 <div class="cart-item-actions">
                     <button class="decrease-quantity-btn" data-id="${itemId}">-</button>

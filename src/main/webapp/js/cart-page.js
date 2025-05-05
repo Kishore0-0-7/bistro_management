@@ -123,14 +123,14 @@ function fallbackDisplayCart(items, total) {
                 const price = menuItem ? menuItem.price : 0;
                 const quantity = item.quantity || 1;
                 
-                html += `<li>${name} - $${parseFloat(price).toFixed(2)} x ${quantity}</li>`;
+                html += `<li>${name} - ₹${parseFloat(price).toFixed(2)} x ${quantity}</li>`;
             } catch (e) {
                 html += '<li>Error displaying item</li>';
                 console.error('Error in fallback display:', e);
             }
         });
         html += '</ul>';
-        html += `<p><strong>Total: $${parseFloat(total || 0).toFixed(2)}</strong></p>`;
+        html += `<p><strong>Total: ₹${parseFloat(total || 0).toFixed(2)}</strong></p>`;
     }
     
     html += '<div class="cart-actions">';
@@ -251,7 +251,7 @@ function renderCart(items, total) {
                 <div class="cart-item" data-id="${itemId}">
                     <div class="cart-item-info">
                         <h4>${name}</h4>
-                        <p>$${parseFloat(price).toFixed(2)} x ${quantity}</p>
+                        <p>₹${parseFloat(price).toFixed(2)} x ${quantity}</p>
                     </div>
                     <div class="cart-item-actions">
                         <button class="decrease-quantity-btn" data-id="${itemId}">-</button>
@@ -272,7 +272,7 @@ function renderCart(items, total) {
         <div class="cart-summary">
             <div class="cart-total">
                 <span>Total:</span>
-                <span>$${parseFloat(total || 0).toFixed(2)}</span>
+                <span>₹${parseFloat(total || 0).toFixed(2)}</span>
             </div>
             <div class="cart-actions">
                 <button id="clear-cart-btn" class="btn-secondary">Clear Cart</button>
@@ -551,10 +551,10 @@ function displayCheckoutItems(items, total) {
             <div class="order-item">
                 <div class="order-item-info">
                     <h4>${name}</h4>
-                    <p>$${parseFloat(price).toFixed(2)} x ${quantity}</p>
+                    <p>₹${parseFloat(price).toFixed(2)} x ${quantity}</p>
                 </div>
                 <div class="order-item-total">
-                    <p>$${itemTotal.toFixed(2)}</p>
+                    <p>₹${itemTotal.toFixed(2)}</p>
                 </div>
             </div>
         `;
