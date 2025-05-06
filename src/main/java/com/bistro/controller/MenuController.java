@@ -35,14 +35,16 @@ public class MenuController extends BaseController {
                 // Get all menu items
                 List<MenuItem> menuItems = menuItemService.getAllMenuItems();
                 sendJsonResponse(response, menuItems);
+            } else if (pathInfo.equals("/featured")) {
+                // Get featured menu items
+                System.out.println("Fetching featured menu items");
+                List<MenuItem> featuredItems = menuItemService.getFeaturedMenuItems();
+                System.out.println("Found " + featuredItems.size() + " featured items");
+                sendJsonResponse(response, featuredItems);
             } else if (pathInfo.equals("/categories")) {
                 // Get all categories
                 List<String> categories = menuItemService.getAllCategories();
                 sendJsonResponse(response, categories);
-            } else if (pathInfo.equals("/featured")) {
-                // Get featured menu items
-                List<MenuItem> featuredItems = menuItemService.getFeaturedMenuItems();
-                sendJsonResponse(response, featuredItems);
             } else if (pathInfo.startsWith("/category/")) {
                 // Get menu items by category
                 String category = pathInfo.substring("/category/".length());
@@ -73,7 +75,9 @@ public class MenuController extends BaseController {
                 }
             }
         } catch (Exception e) {
-            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error retrieving menu items: " + e.getMessage());
+            System.err.println("Error in MenuController doGet: " + e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error processing request: " + e.getMessage());
         }
     }
     

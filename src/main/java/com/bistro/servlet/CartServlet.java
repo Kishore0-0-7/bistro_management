@@ -3,6 +3,7 @@ package com.bistro.servlet;
 import com.bistro.model.CartItem;
 import com.bistro.model.User;
 import com.bistro.service.CartService;
+import com.bistro.util.DBUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.ServletException;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +37,18 @@ public class CartServlet extends HttpServlet {
         System.out.println("CartServlet doGet - User ID in session: " + session.getAttribute("userId"));
         
         try {
+            // Test database connection first
+            try (Connection conn = DBUtil.getConnection()) {
+                if (conn != null) {
+                    System.out.println("CartServlet doGet - Database connection successful");
+                } else {
+                    throw new SQLException("Failed to get a database connection");
+                }
+            } catch (SQLException e) {
+                System.err.println("CartServlet doGet - Database connection test failed: " + e.getMessage());
+                throw e; // Propagate the exception to be caught by the outer try-catch
+            }
+            
             // Ensure user ID is set before getting cart
             ensureUserIdInSession(request);
             System.out.println("CartServlet doGet - After ensureUserIdInSession, User ID: " + session.getAttribute("userId"));
@@ -69,7 +83,7 @@ public class CartServlet extends HttpServlet {
             
             // Create response object
             Map<String, Object> result = new HashMap<>();
-            result.put("items", cartItems);
+            result.put("items", cartItems != null ? cartItems : new ArrayList<>());
             result.put("total", total);
             
             // Debug print the JSON response
@@ -337,4 +351,4 @@ public class CartServlet extends HttpServlet {
         error.put("error", e.getMessage());
         objectMapper.writeValue(response.getOutputStream(), error);
     }
-} 
+}
